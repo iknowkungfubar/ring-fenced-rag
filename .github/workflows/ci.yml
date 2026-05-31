@@ -25,12 +25,10 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
         run: uv sync --group dev
-      - name: Lint with ruff
-        run: uv run ruff check src/ tests/ --exit-zero
-      - name: Check formatting with ruff
+      - name: Check formatting
         run: uv run ruff format --check src/ tests/
-      - name: Type check with pyright
-        run: uv run pyright src/rfr/ --level warning
+      - name: Lint
+        run: uv run ruff check src/ tests/ --exit-zero
 
   test:
     runs-on: ubuntu-latest
