@@ -30,7 +30,7 @@ This blueprint defines the complete product architecture and build plan for Ring
 
 ### Related Documents
 
-- Source design: `/home/turin/projects/ring-fenced-rag/rag-design.md`
+- Source design: `rag-design.md`
 - This blueprint lives in: `.hermes/blueprint/`
 
 ---
