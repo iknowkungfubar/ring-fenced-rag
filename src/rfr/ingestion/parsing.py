@@ -85,8 +85,6 @@ def parse_directory(
         except Exception as e:
             import logging
 
-            logging.getLogger(__name__).warning(
-                "Skipping %s: %s", filepath, e
-            )
+            logging.getLogger(__name__).warning("Skipping %s: %s", filepath, e)
 
     return documents

@@ -40,6 +40,8 @@ def _get_client() -> object:
     from rfr.cli.client import RfrClient
 
     return RfrClient()
+
+
 @click.group(
     name="rfr",
     help="Ring-Fenced RAG — self-hosted secure document Q&A",
@@ -143,7 +145,11 @@ def up(detach: bool, _gpu: str) -> None:
         console.print("[red]No docker-compose.yml found. Run 'rfr init' first.[/red]")
         sys.exit(1)
 
-    cmd = ["docker", "compose", "-f", str(compose_file), "up", "-d"] if detach else ["docker", "compose", "-f", str(compose_file), "up"]
+    cmd = (
+        ["docker", "compose", "-f", str(compose_file), "up", "-d"]
+        if detach
+        else ["docker", "compose", "-f", str(compose_file), "up"]
+    )
     console.print("[bold]Starting Ring-Fenced RAG services...[/bold]")
     try:
         subprocess.run(cmd, check=True)  # noqa: S603
@@ -193,8 +199,16 @@ def status(watch: bool) -> None:
 
         table.add_row("API Server", f"v{health.version}", f"Uptime: {health.uptime_seconds:.0f}s")
         for component, status_text in health.components.items():
-            status_style = "green" if status_text == "connected" else "yellow" if status_text == "configured" else "red"
-            table.add_row(component.capitalize(), f"[{status_style}]{status_text}[/{status_style}]", "")
+            status_style = (
+                "green"
+                if status_text == "connected"
+                else "yellow"
+                if status_text == "configured"
+                else "red"
+            )
+            table.add_row(
+                component.capitalize(), f"[{status_style}]{status_text}[/{status_style}]", ""
+            )
 
         console.print(table)
     except RfrClientError as e:
@@ -208,7 +222,9 @@ def _show_docker_status() -> None:
     try:
         result = subprocess.run(
             ["docker", "ps", "--format", "table {{.Names}}\t{{.Status}}\t{{.Ports}}"],
-            capture_output=True, text=True, check=False,
+            capture_output=True,
+            text=True,
+            check=False,
         )
         if result.returncode == 0:
             console.print("\n[bold]Docker containers:[/bold]")
@@ -268,7 +284,6 @@ def ingest(path: str, role: str | None, pattern: str) -> None:
     """Ingest documents from a file or directory."""
     from rfr.cli.client import RfrClient, RfrClientError
     from rfr.config import AppConfig
-
 
     client = RfrClient()
     console.print(f"[bold]Ingesting documents from {path}...[/bold]")
@@ -378,7 +393,9 @@ def keys_create(name: str, role: str) -> None:
         console.print(f"  Prefix: {result.key_prefix}")
         console.print("\n[bold yellow]Raw Key:[/bold yellow]")
         console.print(f"[bold]{result.key}[/bold]")
-        console.print("\n[dim]⚠ This is the only time the raw key is shown. Store it securely.[/dim]")
+        console.print(
+            "\n[dim]⚠ This is the only time the raw key is shown. Store it securely.[/dim]"
+        )
     except RfrClientError as e:
         console.print(f"[red]{e}[/red]")
         sys.exit(1)
@@ -473,7 +490,9 @@ def docs_delete(doc_id: str) -> None:
     try:
         result = client.delete_document(doc_id)
         if result.deleted:
-            console.print(f"[green]Document '{doc_id}' deleted ({result.chunks_removed} chunks).[/green]")
+            console.print(
+                f"[green]Document '{doc_id}' deleted ({result.chunks_removed} chunks).[/green]"
+            )
     except RfrClientError as e:
         console.print(f"[red]{e}[/red]")
         sys.exit(1)

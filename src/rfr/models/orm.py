@@ -190,9 +190,7 @@ class ApiKey(Base):
         nullable=True,
     )
 
-    __table_args__ = (
-        Index("idx_api_keys_key_hash", key_hash, unique=True),
-    )
+    __table_args__ = (Index("idx_api_keys_key_hash", key_hash, unique=True),)
 
     def __repr__(self) -> str:
         return f"<ApiKey prefix={self.key_prefix!r} role={self.role!r}>"
@@ -248,9 +246,7 @@ class IngestionJob(Base):
         server_default=func.now(),
     )
 
-    __table_args__ = (
-        Index("idx_ingestion_jobs_status", "status"),
-    )
+    __table_args__ = (Index("idx_ingestion_jobs_status", "status"),)
 
     def __repr__(self) -> str:
         return f"<IngestionJob id={self.id} status={self.status!r}>"

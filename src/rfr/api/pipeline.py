@@ -109,7 +109,9 @@ def format_docs(docs: list[Any]) -> str:  # type: ignore[explicit-any]
             source = doc.get("metadata", {}).get("source", "Unknown")
         else:
             content = getattr(doc, "page_content", str(doc))
-            source = doc.metadata.get("source", "Unknown") if hasattr(doc, "metadata") else "Unknown"
+            source = (
+                doc.metadata.get("source", "Unknown") if hasattr(doc, "metadata") else "Unknown"
+            )
 
         parts.append(f"[Source {i + 1}: {source}]\n{content}")
 
@@ -159,16 +161,18 @@ def create_rag_chain(
     # (No ChatOpenAI creation here — the build_response closure handles this)
 
     # 4. Define the prompt template
-    prompt = ChatPromptTemplate.from_messages([
-        (
-            "system",
-            "You are an internal documentation assistant. Answer the user's question "
-            "using ONLY the provided context. If the context does not contain the answer, "
-            "explicitly state 'I do not know'. Do not guess or use outside knowledge.\n\n"
-            "Context:\n{context}",
-        ),
-        ("human", "{question}"),
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "You are an internal documentation assistant. Answer the user's question "
+                "using ONLY the provided context. If the context does not contain the answer, "
+                "explicitly state 'I do not know'. Do not guess or use outside knowledge.\n\n"
+                "Context:\n{context}",
+            ),
+            ("human", "{question}"),
+        ]
+    )
 
     # 5. Build the chain
     def build_response(inputs: dict[str, Any]) -> QueryResponse:
@@ -242,11 +246,13 @@ def _normalize_docs(docs: list[Any]) -> list[dict[str, Any]]:  # type: ignore[ex
         if isinstance(doc, dict):
             result.append(doc)
         elif hasattr(doc, "page_content"):
-            result.append({
-                "content": doc.page_content,
-                "metadata": doc.metadata if hasattr(doc, "metadata") else {},
-                "distance": getattr(doc, "distance", 0.0),
-            })
+            result.append(
+                {
+                    "content": doc.page_content,
+                    "metadata": doc.metadata if hasattr(doc, "metadata") else {},
+                    "distance": getattr(doc, "distance", 0.0),
+                }
+            )
         else:
             result.append({"content": str(doc), "metadata": {}})
     return result

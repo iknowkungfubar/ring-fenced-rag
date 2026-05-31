@@ -224,7 +224,9 @@ class RfrClient:
 
     # ── Documents ──
 
-    def list_documents(self, source: str | None = None, limit: int = 20, offset: int = 0) -> DocumentListResponse:
+    def list_documents(
+        self, source: str | None = None, limit: int = 20, offset: int = 0
+    ) -> DocumentListResponse:
         """List indexed documents.
 
         Args:
