@@ -94,7 +94,9 @@ class QueryScreen(Screen):
                     display.write(f"  [dim]📄 {src} ({(score * 100):.0f}%)[/dim]")
 
             # Meta
-            display.write(f"\n[dim]Latency: {result.latency_ms:.0f}ms | Tokens: {result.token_usage.total_tokens}[/dim]")
+            display.write(
+                f"\n[dim]Latency: {result.latency_ms:.0f}ms | Tokens: {result.token_usage.total_tokens}[/dim]"
+            )
 
         except Exception as e:  # noqa: BLE001
             display.write(f"\n[bold red]Error:[/bold red] {e}")
@@ -178,7 +180,9 @@ class StatusScreen(Screen):
         except Exception as e:  # noqa: BLE001
             display.clear()
             display.write(f"[bold red]Error fetching status:[/bold red] {e}")
-            display.write("\nIs the server running? Try [bold]rfr up[/bold] or [bold]rfr standalone[/bold]")
+            display.write(
+                "\nIs the server running? Try [bold]rfr up[/bold] or [bold]rfr standalone[/bold]"
+            )
 
     def action_refresh(self) -> None:
         """Refresh the status display."""

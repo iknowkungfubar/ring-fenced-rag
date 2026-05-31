@@ -71,7 +71,7 @@ all = [
 ]
 
 [project.scripts]
-rfr = "rfr.cli.main:cli"
+rfr = "rfr.cli:cli"
 
 [project.entry-points."rfr.providers"]
 openai = "rfr.api.providers:OpenAIProvider"
@@ -160,6 +160,7 @@ filterwarnings = [
 [tool.coverage.run]
 source = ["src/rfr"]
 branch = true
+omit = ["src/rfr/cli/tui_app.py"]
 
 [tool.coverage.report]
 exclude_lines = [

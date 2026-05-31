@@ -23,7 +23,11 @@ class LLMProvider(ABC):
 class vLLMProvider(LLMProvider):
     """vLLM OpenAI-compatible provider."""
 
-    def __init__(self, base_url: str = "http://localhost:8000/v1", model: str = "meta-llama/Meta-Llama-3-8B-Instruct") -> None:
+    def __init__(
+        self,
+        base_url: str = "http://localhost:8000/v1",
+        model: str = "meta-llama/Meta-Llama-3-8B-Instruct",
+    ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
 
@@ -42,7 +46,9 @@ class vLLMProvider(LLMProvider):
 class OllamaProvider(LLMProvider):
     """Ollama OpenAI-compatible provider."""
 
-    def __init__(self, base_url: str = "http://localhost:11434/v1", model: str = "llama3.2:3b") -> None:
+    def __init__(
+        self, base_url: str = "http://localhost:11434/v1", model: str = "llama3.2:3b"
+    ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
 
@@ -61,7 +67,9 @@ class OllamaProvider(LLMProvider):
 class LMStudioProvider(LLMProvider):
     """LM Studio OpenAI-compatible provider."""
 
-    def __init__(self, base_url: str = "http://localhost:1234/v1", model: str = "local-model") -> None:
+    def __init__(
+        self, base_url: str = "http://localhost:1234/v1", model: str = "local-model"
+    ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
 
