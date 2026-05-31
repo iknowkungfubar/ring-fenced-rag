@@ -160,4 +160,3 @@ class TestEmbeddingProperties:
         v1 = emb.embed_query(text)
         v2 = emb.embed_query(text)
         assert v1 == v2
-
