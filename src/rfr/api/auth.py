@@ -12,7 +12,6 @@ import secrets
 from datetime import UTC
 
 from fastapi import HTTPException, Request, status as http_status
-from fastapi import status as http_status
 
 from rfr.config import AppConfig
 

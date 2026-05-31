@@ -24,10 +24,10 @@ rfr query "How do I restart Nginx?"
 ## Key Features
 
 - **🔒 Ring-Fenced Retrieval** — PostgreSQL JSONB `@>` operator enforces role-based access at query time. Unauthorized queries return zero results.
-- **🏠 100% Local** — Embedding (sentence-transformers), storage (pgvector), and generation (Ollama/vLLM) all run on your hardware. Zero data egress by default.
+- **🏠 100% Local** — Embedding (sentence-transformers), storage (pgvector), and generation (Ollama/vLLM/LM Studio) all run on your hardware. Zero data egress by default.
 - **♻️ Idempotent Ingestion** — LangChain `SQLRecordManager` tracks content hashes. Ingest the same doc 10 times, get exactly 1 copy.
 - **🔌 Pluggable LLMs** — Supports vLLM, Ollama, LM Studio, and any OpenAI-compatible API. Configure in `~/.rfr/config.toml`.
-- **🎛️ Four Interfaces** — CLI for power users, Web UI for teams, TUI for terminal natives, REST API for integrations.
+- **🎛️ Four Interfaces** — CLI, Web UI, TUI, REST API.
 - **🐧 AMD ROCm Support** — Works on AMD GPUs via ROCm vLLM or Ollama.
 
 ## Quick Start
@@ -77,9 +77,29 @@ rfr ingest ./onboarding/ --role junior_engineer
 rfr query "How do I restart the Nginx server?"
 ```
 
+## CLI Reference
+
+All 13 CLI commands at a glance:
+
+| Command | Description |
+|---------|-------------|
+| `rfr init` | Generate config + docker-compose.yml |
+| `rfr up [-d]` | Start Docker services |
+| `rfr down` | Stop Docker services |
+| `rfr status` | Show component health |
+| `rfr version` | Show version, git commit, platform |
+| `rfr config show` | Print current config |
+| `rfr config set <k> <v>` | Update config value |
+| `rfr ingest <path>` | Ingest documents from file/directory |
+| `rfr query <question>` | Ask a question against your docs |
+| `rfr keys create/list/revoke` | Manage API keys |
+| `rfr docs list/delete` | Browse and delete indexed documents |
+| `rfr logs [service]` | Tail Docker service logs |
+| `rfr tui` | Launch terminal UI (Textual) |
+
 ## Configuration
 
-Key configuration lives in `~/.rfr/config.toml` (or set via `RFR_*` env vars):
+Edit `~/.rfr/config.toml` or use `RFR_*` environment variables:
 
 ```toml
 [llm]
@@ -125,12 +145,12 @@ uv sync --group dev
 # Run tests
 uv run pytest tests/ -q --tb=short --cov=src/rfr
 
-# Lint
-uv run ruff check src/ tests/
+# Format and lint
 uv run ruff format src/ tests/
+uv run ruff check src/ tests/
 
-# Type check
-uv run pyright src/rfr/
+# Install TUI dependencies (optional)
+uv pip install textual
 ```
 
 ## License
