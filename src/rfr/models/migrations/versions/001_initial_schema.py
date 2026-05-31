@@ -132,4 +132,3 @@ def downgrade() -> None:
     op.execute("DROP TYPE IF EXISTS ingestion_status")
     op.drop_table("api_keys")
     op.drop_table("document_chunks")
-    # Optionally: op.execute("DROP EXTENSION IF EXISTS vector")

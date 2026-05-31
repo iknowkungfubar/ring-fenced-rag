@@ -26,6 +26,7 @@
 
 ## Next Iteration
 Priority for next pass:
-1. Fix `BLE001` blind-except blocks in ingestion pipeline (5 instances)
-2. Fix `TRY003` raise-vanilla-args in CLI (7 instances)
-3. Evaluate `PLW0603` global-statement refactor (database.py → class-based singleton)
+- BLE001 blind-except in ingestion pipeline (added noqa, acceptable for graceful degradation)
+- S603 subprocess without shell-equals-true in CLI (3 remaining, suppressed)
+- D102/D107 docstring coverage in api routes and providers
+- Evaluate if pyright can be re-enabled in CI with proper suppressions
