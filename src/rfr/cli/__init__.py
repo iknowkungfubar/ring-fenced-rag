@@ -35,13 +35,11 @@ from rfr import __version__
 console = Console()
 
 
-def _get_client() -> RfrClient:  # type: ignore[name-defined]
+def _get_client() -> object:
     """Create an API client connected to the configured server."""
     from rfr.cli.client import RfrClient
 
     return RfrClient()
-
-
 @click.group(
     name="rfr",
     help="Ring-Fenced RAG — self-hosted secure document Q&A",
@@ -511,7 +509,7 @@ def standalone(port: int) -> None:
 @cli.command()
 @click.argument("service", required=False, default=None)
 @click.option("-f", "--follow", is_flag=True, help="Follow log output")
-def logs(service: str | None, _follow: bool) -> None:
+def logs(service: str | None, follow: bool) -> None:  # noqa: ARG001
     """Tail Docker service logs."""
     compose_file = Path.cwd() / "docker-compose.yml"
     if not compose_file.exists():

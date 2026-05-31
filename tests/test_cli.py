@@ -3,11 +3,12 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from unittest.mock import patch
 
-from click.testing import CliRunner
+from click.testing import CliRunner, Result
 
 from rfr.api.schemas import (
     CreateKeyResponse,
     DeactivateKeyResponse,
+    DeleteDocumentResponse,
     DocumentListResponse,
     HealthResponse,
     IngestResponse,
@@ -108,7 +109,7 @@ class TestCli:
     def setup_method(self) -> None:
         self.runner = CliRunner()
 
-    def _invoke(self, args: list[str]) -> Result:  # type: ignore[name-defined]
+    def _invoke(self, args: list[str]) -> "Result":
         """Invoke CLI with RfrClient mocked."""
         with patch("rfr.cli.client.RfrClient", return_value=_MockClient()):
             return self.runner.invoke(cli, args)
