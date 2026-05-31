@@ -5,6 +5,7 @@ from __future__ import annotations
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+
 def chunk_document(
     documents: list[Document],
     chunk_size: int = 512,

@@ -109,6 +109,20 @@ ignore = [
 ]
 fixable = ["ALL"]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "ANN001", "ANN201", "ANN401",
+    "D100", "D101", "D102", "D103", "D104", "D105", "D107",
+    "D200", "D205", "D401", "D403", "D413", "D415",
+    "INP001", "PLC0415", "PLR2004", "S108",
+    "ARG001", "ARG002", "TRY003", "B017", "PT011", "BLE001",
+    "FBT001", "FBT002",
+]
+"src/rfr/cli/*" = ["PLC0415", "ARG001", "FBT001", "FIX002", "TD002", "TD003"]
+"src/rfr/api/routes.py" = ["FAST002"]
+"src/rfr/api/providers.py" = ["PLC0415", "ANN401"]
+"src/rfr/models/migrations/*" = ["INP001", "E501", "S104", "PLC0415"]
+
 [tool.ruff.format]
 docstring-code-format = true
 docstring-code-line-length = 100

@@ -48,13 +48,15 @@ class _MockClient:
             latency_ms=450.0,
         )
 
-    def ingest_directory(self, path: str, default_role: str = "user", glob_pattern: str = "**/*") -> IngestResponse:  # noqa: ARG002
+    def ingest_directory(
+        self, path: str, default_role: str = "user", glob_pattern: str = "**/*"
+    ) -> IngestResponse:
         return IngestResponse(task_id="mock-task-id", status="completed", source=path)
 
-    def ingest_file(self, path: str, allowed_roles: list[str] | None = None) -> IngestResponse:  # noqa: ARG002
+    def ingest_file(self, path: str, allowed_roles: list[str] | None = None) -> IngestResponse:
         return IngestResponse(task_id="mock-task-id", status="completed", source=path)
 
-    def get_ingestion_status(self, task_id: str) -> IngestStatusResponse:  # noqa: ARG002
+    def get_ingestion_status(self, task_id: str) -> IngestStatusResponse:
         return IngestStatusResponse(
             task_id="mock-task-id",
             status="completed",
@@ -90,7 +92,9 @@ class _MockClient:
     def revoke_key(self, prefix: str) -> DeactivateKeyResponse:
         return DeactivateKeyResponse(deactivated=True, prefix=prefix)
 
-    def list_documents(self, source: str | None = None, limit: int = 20, offset: int = 0) -> DocumentListResponse:  # noqa: ARG002
+    def list_documents(
+        self, source: str | None = None, limit: int = 20, offset: int = 0
+    ) -> DocumentListResponse:
         return DocumentListResponse(items=[], total=0, limit=limit, offset=offset)
 
     def delete_document(self, doc_id: str) -> DeleteDocumentResponse:
@@ -109,7 +113,7 @@ class TestCli:
     def setup_method(self) -> None:
         self.runner = CliRunner()
 
-    def _invoke(self, args: list[str]) -> "Result":
+    def _invoke(self, args: list[str]) -> Result:
         """Invoke CLI with RfrClient mocked."""
         with patch("rfr.cli.client.RfrClient", return_value=_MockClient()):
             return self.runner.invoke(cli, args)

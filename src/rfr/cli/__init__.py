@@ -178,7 +178,7 @@ def down() -> None:
 
 @cli.command()
 @click.option("--watch", is_flag=True, help="Continuously watch status")
-def status(watch: bool) -> None:  # noqa: ARG001
+def status(watch: bool) -> None:
     """Show health of all components."""
     from rfr.cli.client import RfrClient, RfrClientError
 
@@ -318,7 +318,7 @@ def ingest(path: str, role: str | None, pattern: str) -> None:
 @click.option("--role", default=None, help="Override role for this query")
 @click.option("--top-k", default=3, help="Number of documents to retrieve")
 @click.option("--no-llm", is_flag=True, help="Return retrieved docs only")
-def query(question: tuple[str, ...], role: str | None, top_k: int, no_llm: bool) -> None:  # noqa: ARG001
+def query(question: tuple[str, ...], role: str | None, top_k: int, no_llm: bool) -> None:
     """Ask a question against your indexed documents."""
     from rfr.cli.client import RfrClient, RfrClientError
 
@@ -509,7 +509,7 @@ def standalone(port: int) -> None:
 @cli.command()
 @click.argument("service", required=False, default=None)
 @click.option("-f", "--follow", is_flag=True, help="Follow log output")
-def logs(service: str | None, follow: bool) -> None:  # noqa: ARG001
+def logs(service: str | None, follow: bool) -> None:
     """Tail Docker service logs."""
     compose_file = Path.cwd() / "docker-compose.yml"
     if not compose_file.exists():

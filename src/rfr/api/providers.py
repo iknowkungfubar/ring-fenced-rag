@@ -10,7 +10,7 @@ class LLMProvider(ABC):
     """Abstract base for LLM provider adapters."""
 
     @abstractmethod
-    def get_chat_model(self) -> Any:  # noqa: ANN401
+    def get_chat_model(self) -> Any:
         """Return a LangChain-compatible chat model instance."""
         ...
 
@@ -22,7 +22,7 @@ class vLLMProvider(LLMProvider):
         self.base_url = base_url
         self.model = model
 
-    def get_chat_model(self) -> Any:  # noqa: ANN401
+    def get_chat_model(self) -> Any:
         from langchain_openai import ChatOpenAI
 
         return ChatOpenAI(
@@ -41,7 +41,7 @@ class OllamaProvider(LLMProvider):
         self.base_url = base_url
         self.model = model
 
-    def get_chat_model(self) -> Any:  # noqa: ANN401
+    def get_chat_model(self) -> Any:
         from langchain_openai import ChatOpenAI
 
         return ChatOpenAI(
@@ -60,7 +60,7 @@ class OpenAIProvider(LLMProvider):
         self.api_key = api_key
         self.model = model
 
-    def get_chat_model(self) -> Any:  # noqa: ANN401
+    def get_chat_model(self) -> Any:
         from langchain_openai import ChatOpenAI
 
         return ChatOpenAI(
