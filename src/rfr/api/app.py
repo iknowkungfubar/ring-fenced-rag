@@ -9,8 +9,6 @@ Creates and configures the FastAPI app with:
 
 from __future__ import annotations
 
-import time
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -25,6 +23,7 @@ def create_app() -> FastAPI:
 
     Returns:
         Configured FastAPI application instance.
+
     """
     cfg = AppConfig()
 
@@ -78,7 +77,7 @@ def create_app() -> FastAPI:
 
     # Startup event
     @app.on_event("startup")
-    async def startup() -> None:  # noqa: D103
+    async def startup() -> None:
         import logging
 
         logger = logging.getLogger(__name__)
@@ -94,7 +93,7 @@ def create_app() -> FastAPI:
 
     # Shutdown event
     @app.on_event("shutdown")
-    async def shutdown() -> None:  # noqa: D103
+    async def shutdown() -> None:
         import logging
 
         logger = logging.getLogger(__name__)

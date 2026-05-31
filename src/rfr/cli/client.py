@@ -6,7 +6,6 @@ Handles auth header injection, error handling, and response parsing.
 
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 from typing import Any
@@ -78,6 +77,7 @@ class RfrClient:
             base_url: API base URL. Defaults to $RFR_API_URL or http://localhost:8000.
             api_key: API key for authentication. Defaults to $RFR_API_KEY or config file.
             timeout: Request timeout in seconds.
+
         """
         self.base_url = (base_url or _default_base_url()).rstrip("/")
         self.api_key = api_key or _get_api_key()
@@ -111,6 +111,7 @@ class RfrClient:
 
         Raises:
             RfrClientError: On connection or HTTP errors.
+
         """
         try:
             response = self.client.request(method, path, **kwargs)
@@ -139,6 +140,7 @@ class RfrClient:
 
         Returns:
             HealthResponse with component status.
+
         """
         response = self._request("GET", "/api/v1/health")
         return HealthResponse(**response.json())
@@ -154,6 +156,7 @@ class RfrClient:
 
         Returns:
             QueryResponse with answer and sources.
+
         """
         body = QueryRequest(query=question, top_k=top_k)
         response = self._request("POST", "/api/v1/query", json=body.model_dump())
@@ -176,6 +179,7 @@ class RfrClient:
 
         Returns:
             IngestResponse with task_id.
+
         """
         body = {
             "type": "directory",
@@ -195,6 +199,7 @@ class RfrClient:
 
         Returns:
             IngestResponse with task_id.
+
         """
         body = {
             "type": "file",
@@ -212,6 +217,7 @@ class RfrClient:
 
         Returns:
             IngestStatusResponse with current status.
+
         """
         response = self._request("GET", f"/api/v1/ingest/{task_id}")
         return IngestStatusResponse(**response.json())
@@ -228,6 +234,7 @@ class RfrClient:
 
         Returns:
             DocumentListResponse with items.
+
         """
         params: dict[str, Any] = {"limit": limit, "offset": offset}
         if source:
@@ -243,6 +250,7 @@ class RfrClient:
 
         Returns:
             DeleteDocumentResponse.
+
         """
         response = self._request("DELETE", f"/api/v1/documents/{doc_id}")
         return DeleteDocumentResponse(**response.json())
@@ -252,6 +260,7 @@ class RfrClient:
 
         Returns:
             SourceListResponse.
+
         """
         response = self._request("GET", "/api/v1/documents/sources")
         return SourceListResponse(**response.json())
@@ -267,6 +276,7 @@ class RfrClient:
 
         Returns:
             CreateKeyResponse with the raw key (shown once).
+
         """
         body = CreateKeyRequest(name=name, role=role)
         response = self._request("POST", "/api/v1/auth/keys", json=body.model_dump())
@@ -277,6 +287,7 @@ class RfrClient:
 
         Returns:
             KeyListResponse.
+
         """
         response = self._request("GET", "/api/v1/auth/keys")
         return KeyListResponse(**response.json())
@@ -289,6 +300,7 @@ class RfrClient:
 
         Returns:
             DeactivateKeyResponse.
+
         """
         response = self._request("DELETE", f"/api/v1/auth/keys/{prefix}")
         return DeactivateKeyResponse(**response.json())
@@ -300,6 +312,7 @@ class RfrClient:
 
         Returns:
             Response dict with task_id.
+
         """
         response = self._request("POST", "/api/v1/admin/reindex")
         return response.json()  # type: ignore[return-value]

@@ -7,13 +7,12 @@ Implements the API contracts from 05-API.md:
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from rfr import __version__
-from rfr.api.auth import generate_api_key, get_current_role, hash_api_key, require_admin_role
+from rfr.api.auth import generate_api_key, get_current_role, require_admin_role
 from rfr.api.pipeline import RAGExecutionError, execute_rag_query
 from rfr.api.schemas import (
     CreateKeyRequest,
@@ -102,7 +101,7 @@ async def query(
 @router.post("/ingest", response_model=IngestResponse, status_code=202, tags=["Ingestion"])
 async def trigger_ingestion(
     body: DirectorySource | FileSource | RawSource,
-    _: str = Depends(require_admin_role),
+    _admin: str = Depends(require_admin_role),
 ) -> IngestResponse:
     """Trigger async document ingestion from a source."""
     source_desc = body.path if hasattr(body, "path") else "raw"
@@ -125,8 +124,8 @@ async def get_ingestion_status(
         task_id=task_id,
         status="completed",
         source="unknown",
-        started_at=datetime.now(timezone.utc),
-        completed_at=datetime.now(timezone.utc),
+        started_at=datetime.now(UTC),
+        completed_at=datetime.now(UTC),
         result={"num_added": 0, "num_updated": 0, "num_skipped": 0, "num_deleted": 0},
     )
 
@@ -149,7 +148,7 @@ async def list_documents(
 @router.delete("/documents/{doc_id}", response_model=DeleteDocumentResponse, tags=["Documents"])
 async def delete_document(
     doc_id: str = Path(..., description="Document ID to delete"),
-    _: str = Depends(require_admin_role),
+    _admin: str = Depends(require_admin_role),
 ) -> DeleteDocumentResponse:
     """Delete all chunks for a specific document."""
     # TODO: Delete from document_chunks + SQLRecordManager
@@ -171,7 +170,7 @@ async def list_sources(
 @router.post("/auth/keys", response_model=CreateKeyResponse, status_code=201, tags=["Auth"])
 async def create_api_key(
     body: CreateKeyRequest,
-    _: str = Depends(require_admin_role),
+    _admin: str = Depends(require_admin_role),
 ) -> CreateKeyResponse:
     """Create a new API key. Returns the raw key once (shown only here)."""
     raw_key, key_hash, key_prefix = generate_api_key()
@@ -194,13 +193,13 @@ async def create_api_key(
         key_prefix=key_prefix,
         name=body.name,
         role=body.role,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 
 @router.get("/auth/keys", response_model=KeyListResponse, tags=["Auth"])
 async def list_api_keys(
-    _: str = Depends(require_admin_role),
+    _admin: str = Depends(require_admin_role),
 ) -> KeyListResponse:
     """List all API keys (hashes only, no raw keys)."""
     from rfr.models.database import create_session
@@ -226,7 +225,7 @@ async def list_api_keys(
 @router.delete("/auth/keys/{prefix}", response_model=DeactivateKeyResponse, tags=["Auth"])
 async def deactivate_api_key(
     prefix: str = Path(..., description="Key prefix to deactivate"),
-    _: str = Depends(require_admin_role),
+    _admin: str = Depends(require_admin_role),
 ) -> DeactivateKeyResponse:
     """Deactivate an API key by its prefix."""
     from rfr.models.database import create_session
@@ -247,7 +246,7 @@ async def deactivate_api_key(
 
 @router.post("/admin/reindex", response_model=ReindexResponse, status_code=202, tags=["Admin"])
 async def trigger_reindex(
-    _: str = Depends(require_admin_role),
+    _admin: str = Depends(require_admin_role),
 ) -> ReindexResponse:
     """Re-index all documents (clears existing vectors, re-runs ingestion)."""
     # TODO: Clear all chunks + upsertion records, re-ingest known sources

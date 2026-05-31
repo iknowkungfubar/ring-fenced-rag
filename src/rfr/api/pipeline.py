@@ -49,6 +49,7 @@ def create_secure_retriever(
 
     Returns:
         A callable that takes a query string and returns list of Documents.
+
     """
     if vector_store is None:
         # Return a mock retriever for standalone/dev mode
@@ -96,6 +97,7 @@ def format_docs(docs: list[Any]) -> str:  # type: ignore[explicit-any]
 
     Returns:
         Formatted string with source citations.
+
     """
     if not docs:
         return "No relevant documentation found for this query."
@@ -132,8 +134,8 @@ def create_rag_chain(
 
     Returns:
         A callable LCEL chain that takes a query string and returns a QueryResponse.
-    """
 
+    """
     # 1. Create the secure retriever
     retriever = create_secure_retriever(user_role, top_k, vector_store)
 
@@ -259,6 +261,7 @@ def _generate_mock_answer(context: str, question: str) -> str:
 
     Returns:
         A simulated answer based on the context.
+
     """
     if "No relevant" in context:
         return "I could not find any relevant documentation for your query."
@@ -292,6 +295,7 @@ def execute_rag_query(
 
     Raises:
         RAGExecutionError: If the pipeline fails at any step.
+
     """
     chain = create_rag_chain(user_role, llm, vector_store, top_k)
     try:

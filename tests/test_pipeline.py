@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from rfr.api.pipeline import RAGExecutionError, create_rag_chain, execute_rag_query, format_docs
+from rfr.api.pipeline import create_rag_chain, execute_rag_query, format_docs
 from rfr.api.schemas import QueryResponse
 
 

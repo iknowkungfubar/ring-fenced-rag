@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -62,18 +62,16 @@ class _MockClient:
         )
 
     def create_key(self, name: str, role: str = "user") -> CreateKeyResponse:
-        from datetime import datetime, timezone
 
         return CreateKeyResponse(
             key="rfr_mockkey1234567890abcdef1234567890abcdef1234",
             key_prefix="rfr_mockke",
             name=name,
             role=role,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     def list_keys(self) -> KeyListResponse:
-        from datetime import datetime, timezone
 
         return KeyListResponse(
             keys=[
@@ -82,22 +80,22 @@ class _MockClient:
                     name="test-key",
                     role="admin",
                     is_active=True,
-                    created_at=datetime.now(timezone.utc),
-                    last_used_at=datetime.now(timezone.utc),
+                    created_at=datetime.now(UTC),
+                    last_used_at=datetime.now(UTC),
                 ),
             ],
         )
 
-    def revoke_key(self, prefix: str) -> DeactivateKeyResponse:  # noqa: ARG002
+    def revoke_key(self, prefix: str) -> DeactivateKeyResponse:
         return DeactivateKeyResponse(deactivated=True, prefix=prefix)
 
     def list_documents(self, source: str | None = None, limit: int = 20, offset: int = 0) -> DocumentListResponse:  # noqa: ARG002
         return DocumentListResponse(items=[], total=0, limit=limit, offset=offset)
 
-    def delete_document(self, doc_id: str) -> DeleteDocumentResponse:  # noqa: ARG002
+    def delete_document(self, doc_id: str) -> DeleteDocumentResponse:
         return DeleteDocumentResponse(deleted=True, doc_id=doc_id, chunks_removed=0)
 
-    def list_sources(self) -> SourceListResponse:  # noqa: ARG002
+    def list_sources(self) -> SourceListResponse:
         return SourceListResponse(sources=[])
 
     def close(self) -> None:
@@ -110,7 +108,7 @@ class TestCli:
     def setup_method(self) -> None:
         self.runner = CliRunner()
 
-    def _invoke(self, args: list[str]) -> "Result":  # type: ignore[name-defined]
+    def _invoke(self, args: list[str]) -> Result:  # type: ignore[name-defined]
         """Invoke CLI with RfrClient mocked."""
         with patch("rfr.cli.client.RfrClient", return_value=_MockClient()):
             return self.runner.invoke(cli, args)
@@ -128,25 +126,25 @@ class TestCli:
         assert "ring-fenced rag" in result.output.lower()
 
     def test_init(self) -> None:
-        """init command should succeed."""
+        """Init command should succeed."""
         result = self.runner.invoke(cli, ["init"])
         assert result.exit_code == 0
         assert "Initializing" in result.output
 
     def test_config_show(self) -> None:
-        """config show should print configuration table."""
+        """Config show should print configuration table."""
         result = self.runner.invoke(cli, ["config", "show"])
         assert result.exit_code == 0
         assert "ollama" in result.output
 
     def test_query(self) -> None:
-        """query command should accept a question and use the API."""
+        """Query command should accept a question and use the API."""
         result = self._invoke(["query", "How do I restart Nginx?"])
         assert result.exit_code == 0, result.output
         assert "restart nginx" in result.output.lower()
 
     def test_ingest(self) -> None:
-        """ingest command should accept a path."""
+        """Ingest command should accept a path."""
         import tempfile
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -155,19 +153,19 @@ class TestCli:
             assert "Ingesting" in result.output
 
     def test_keys_create(self) -> None:
-        """keys create should accept a name."""
+        """Keys create should accept a name."""
         result = self._invoke(["keys", "create", "test-key"])
         assert result.exit_code == 0, result.output
         assert "test-key" in result.output
 
     def test_keys_list(self) -> None:
-        """keys list should show API keys."""
+        """Keys list should show API keys."""
         result = self._invoke(["keys", "list"])
         assert result.exit_code == 0, result.output
         assert "test-key" in result.output
 
     def test_status(self) -> None:
-        """status should show component health."""
+        """Status should show component health."""
         result = self._invoke(["status"])
         assert result.exit_code == 0, result.output
         assert "connected" in result.output

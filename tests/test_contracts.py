@@ -6,7 +6,7 @@ They use the Pydantic models directly to validate serialization/deserialization.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from rfr.api.schemas import (
     CreateKeyRequest,
@@ -101,7 +101,7 @@ class TestContractIngestResponse:
 
     def test_ingest_status_response(self) -> None:
         """GET /ingest/{id} should return status with optional result."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         resp = IngestStatusResponse(
             task_id="uuid-here",
             status="completed",
@@ -163,7 +163,7 @@ class TestContractAuthResponse:
             key_prefix="rfr_a1b2",
             name="dev-cli-key",
             role="senior_engineer",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         data = resp.model_dump()
         assert data["key"].startswith("rfr_")
@@ -186,7 +186,7 @@ class TestContractAuthResponse:
                     name="dev-cli-key",
                     role="admin",
                     is_active=True,
-                    created_at=datetime.now(timezone.utc),
+                    created_at=datetime.now(UTC),
                 ),
             ],
         )

@@ -35,7 +35,7 @@ from rfr import __version__
 console = Console()
 
 
-def _get_client() -> "RfrClient":  # type: ignore[name-defined]
+def _get_client() -> RfrClient:  # type: ignore[name-defined]
     """Create an API client connected to the configured server."""
     from rfr.cli.client import RfrClient
 
@@ -58,7 +58,7 @@ def cli() -> None:
     is_flag=True,
     help="Overwrite existing config and docker-compose files",
 )
-def init(force: bool) -> None:  # noqa: ARG001
+def init(force: bool) -> None:
     """Generate default configuration and docker-compose.yml."""
     from rfr.config import AppConfig, load_config
 
@@ -81,7 +81,7 @@ def init(force: bool) -> None:  # noqa: ARG001
     # Generate docker-compose.yml in current directory
     compose_path = Path.cwd() / "docker-compose.yml"
     if compose_path.exists() and not force:
-        console.print(f"[yellow]docker-compose.yml already exists[/yellow]")
+        console.print("[yellow]docker-compose.yml already exists[/yellow]")
     else:
         _write_default_compose(compose_path)
         console.print(f"[green]Created {compose_path}[/green]")
@@ -90,7 +90,7 @@ def init(force: bool) -> None:  # noqa: ARG001
     console.print("  1. Edit ~/.rfr/config.toml to customize")
     console.print("  2. Run [bold]rfr up[/bold] to start the stack")
     console.print("  3. Run [bold]rfr ingest ./docs/[/bold] to add documents")
-    console.print("  4. Run [bold]rfr query \"your question\"[/bold]")
+    console.print('  4. Run [bold]rfr query "your question"[/bold]')
 
 
 def _write_default_compose(path: Path) -> None:
@@ -138,7 +138,7 @@ volumes:
 @cli.command()
 @click.option("-d", "--detach", is_flag=True, help="Run in background")
 @click.option("--gpu", type=click.Choice(["rocm", "cuda", "none"]), default="none")
-def up(detach: bool, gpu: str) -> None:  # noqa: ARG001
+def up(detach: bool, _gpu: str) -> None:
     """Start all Docker services."""
     compose_file = Path.cwd() / "docker-compose.yml"
     if not compose_file.exists():
@@ -170,7 +170,7 @@ def down() -> None:
     try:
         subprocess.run(
             ["docker", "compose", "-f", str(compose_file), "down"],
-            check=True,  # noqa: S603
+            check=True,
         )
         console.print("[green]Services stopped.[/green]")
     except subprocess.CalledProcessError as e:
@@ -210,7 +210,7 @@ def _show_docker_status() -> None:
     try:
         result = subprocess.run(
             ["docker", "ps", "--format", "table {{.Names}}\t{{.Status}}\t{{.Ports}}"],
-            capture_output=True, text=True, check=False,  # noqa: S603
+            capture_output=True, text=True, check=False,
         )
         if result.returncode == 0:
             console.print("\n[bold]Docker containers:[/bold]")
@@ -269,10 +269,8 @@ def config_set(key: str, value: str) -> None:
 def ingest(path: str, role: str | None, pattern: str) -> None:
     """Ingest documents from a file or directory."""
     from rfr.cli.client import RfrClient, RfrClientError
-
     from rfr.config import AppConfig
 
-    import os
 
     client = RfrClient()
     console.print(f"[bold]Ingesting documents from {path}...[/bold]")
@@ -305,7 +303,7 @@ def ingest(path: str, role: str | None, pattern: str) -> None:
 
         if status.status == "completed" and status.result:
             r = status.result
-            console.print(f"[green]Ingestion complete:[/green]")
+            console.print("[green]Ingestion complete:[/green]")
             console.print(f"  Added: {r.get('num_added', 0)}")
             console.print(f"  Updated: {r.get('num_updated', 0)}")
             console.print(f"  Skipped: {r.get('num_skipped', 0)}")
@@ -380,7 +378,7 @@ def keys_create(name: str, role: str) -> None:
         console.print(f"  Name:   {result.name}")
         console.print(f"  Role:   {result.role}")
         console.print(f"  Prefix: {result.key_prefix}")
-        console.print(f"\n[bold yellow]Raw Key:[/bold yellow]")
+        console.print("\n[bold yellow]Raw Key:[/bold yellow]")
         console.print(f"[bold]{result.key}[/bold]")
         console.print("\n[dim]⚠ This is the only time the raw key is shown. Store it securely.[/dim]")
     except RfrClientError as e:
@@ -495,7 +493,7 @@ def standalone(port: int) -> None:
     console.print(f"[bold]Starting standalone server on port {port}...[/bold]")
     console.print("[dim]Database: SQLite (in-memory, data not persisted)[/dim]")
     console.print("[dim]LLM: Mock mode (no external inference)[/dim]")
-    console.print("[dim]API docs: http://localhost:{}/docs[/dim]".format(port))
+    console.print(f"[dim]API docs: http://localhost:{port}/docs[/dim]")
 
     import uvicorn
 
@@ -513,7 +511,7 @@ def standalone(port: int) -> None:
 @cli.command()
 @click.argument("service", required=False, default=None)
 @click.option("-f", "--follow", is_flag=True, help="Follow log output")
-def logs(service: str | None, follow: bool) -> None:  # noqa: ARG001
+def logs(service: str | None, _follow: bool) -> None:
     """Tail Docker service logs."""
     compose_file = Path.cwd() / "docker-compose.yml"
     if not compose_file.exists():

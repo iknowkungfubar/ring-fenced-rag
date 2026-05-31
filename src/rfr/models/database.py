@@ -26,6 +26,7 @@ def get_engine(db_url: str | None = None, **kwargs: Any) -> Any:  # noqa: ANN401
 
     Returns:
         SQLAlchemy Engine instance.
+
     """
     global _engine
     if _engine is None:
@@ -58,7 +59,7 @@ def get_session_factory() -> sessionmaker[Session]:
 
 
 @contextmanager
-def create_session() -> Generator[Session, None, None]:
+def create_session() -> Generator[Session]:
     """Create a new database session.
 
     Yields:
@@ -67,6 +68,7 @@ def create_session() -> Generator[Session, None, None]:
     Example:
         with create_session() as session:
             results = session.query(DocumentChunk).all()
+
     """
     db = get_session_factory()()
     try:
@@ -75,7 +77,7 @@ def create_session() -> Generator[Session, None, None]:
         db.close()
 
 
-async def get_async_session() -> AsyncGenerator[Any, None]:  # noqa: ANN401
+async def get_async_session() -> AsyncGenerator[Any]:
     """FastAPI dependency for database sessions."""
     for session in create_session():
         yield session
@@ -86,6 +88,7 @@ def init_db(db_url: str | None = None) -> None:
 
     Args:
         db_url: Database URL. If None, uses the default from config.
+
     """
     engine = get_engine(db_url)
     Base.metadata.create_all(bind=engine)

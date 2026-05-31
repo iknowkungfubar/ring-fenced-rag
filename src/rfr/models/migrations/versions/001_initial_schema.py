@@ -14,16 +14,16 @@ Creates the core RFR schema:
 
 from __future__ import annotations
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "001"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -77,12 +77,7 @@ def upgrade() -> None:
         postgresql_using="gin",
     )
 
-    # HNSW vector index (run after data is loaded for speed)
-    # op.execute(
-    #     "CREATE INDEX idx_doc_chunks_embedding_hnsw "
-    #     "ON document_chunks USING hnsw (embedding vector_cosine_ops) "
-    #     "WITH (m = 16, ef_construction = 200)"
-    # )
+    # HNSW index: CREATE INDEX idx_doc_chunks_embedding_hnsw ON document_chunks USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 200)
 
     # ── api_keys ──
     op.create_table(

@@ -9,9 +9,10 @@ from __future__ import annotations
 import hashlib
 import hmac
 import secrets
-from typing import Any
+from datetime import UTC
 
-from fastapi import Header, HTTPException, Request, status as http_status
+from fastapi import Header, HTTPException, Request
+from fastapi import status as http_status
 
 from rfr.config import AppConfig
 
@@ -24,6 +25,7 @@ def generate_api_key() -> tuple[str, str, str]:
         The raw key should be shown once and then discarded.
         The hash is stored in the database.
         The prefix is used for key identification in listings.
+
     """
     raw = "rfr_" + secrets.token_hex(32)
     key_hash = hashlib.sha256(raw.encode()).hexdigest()
@@ -39,6 +41,7 @@ def hash_api_key(raw_key: str) -> str:
 
     Returns:
         SHA-256 hex digest of the key.
+
     """
     return hashlib.sha256(raw_key.encode()).hexdigest()
 
@@ -52,6 +55,7 @@ def verify_key(raw_key: str, stored_hash: str) -> bool:
 
     Returns:
         True if the key matches, False otherwise.
+
     """
     computed = hash_api_key(raw_key)
     return hmac.compare_digest(computed, stored_hash)
@@ -65,6 +69,7 @@ def extract_bearer_token(request: Request) -> str | None:
 
     Returns:
         The token string, or None if not present or malformed.
+
     """
     auth = request.headers.get("Authorization", "")
     if auth.startswith("Bearer "):
@@ -95,6 +100,7 @@ async def get_current_role(
 
     Raises:
         HTTPException: If the key is invalid, inactive, or missing.
+
     """
     cfg = AppConfig()
 
@@ -129,9 +135,9 @@ async def get_current_role(
                 headers={"WWW-Authenticate": "Bearer"},
             )
         # Update last_used_at
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        key_record.last_used_at = datetime.now(timezone.utc)
+        key_record.last_used_at = datetime.now(UTC)
         session.commit()
         return key_record.role
 

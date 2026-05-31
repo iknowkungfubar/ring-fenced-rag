@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 
 import pytest
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import inspect, text
 
 from rfr.models.database import create_session, get_engine, init_db, reset_engine
-from rfr.models.orm import ApiKey, Base, DocumentChunk, IngestionJob
+from rfr.models.orm import ApiKey, DocumentChunk, IngestionJob
 
 
 @pytest.fixture
@@ -209,7 +208,7 @@ def test_job_status_transition(db_url: str) -> None:
     with create_session() as session:
         session.add(job)
         session.commit()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         job.status = "running"
         job.started_at = now
