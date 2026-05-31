@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-text-primary antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium
+           transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2
+           focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-dim;
+  }
+  .btn-secondary {
+    @apply btn bg-elevated text-text-primary hover:bg-border;
+  }
+  .btn-destructive {
+    @apply btn bg-error text-white hover:bg-red-600;
+  }
+  .card {
+    @apply rounded-xl bg-surface border border-border p-6;
+  }
+  .input {
+    @apply w-full rounded-lg bg-elevated border border-border px-4 py-2.5 text-sm text-text-primary
+           placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-accent;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .badge-success {
+    @apply badge bg-green-500/10 text-success;
+  }
+  .badge-warning {
+    @apply badge bg-yellow-500/10 text-warning;
+  }
+  .badge-error {
+    @apply badge bg-red-500/10 text-error;
+  }
+}
