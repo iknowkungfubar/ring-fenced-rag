@@ -60,6 +60,7 @@ dev = [
     "httpx>=0.28,<1",
     "syrupy>=4.8,<5",
     "respx>=0.22,<1",
+    "hypothesis>=6.155,<7",
 ]
 
 [project.optional-dependencies]
@@ -146,7 +147,7 @@ reportDeprecated = false
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "unit/test_*.py", "integration/test_*.py", "e2e/test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 asyncio_mode = "auto"
