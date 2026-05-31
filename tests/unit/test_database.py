@@ -7,7 +7,13 @@ from unittest.mock import patch
 import pytest
 from sqlalchemy import text
 
-from rfr.models.database import create_session, get_engine, get_session_factory, init_db, reset_engine
+from rfr.models.database import (
+    create_session,
+    get_engine,
+    get_session_factory,
+    init_db,
+    reset_engine,
+)
 
 
 class TestDatabaseEngine:

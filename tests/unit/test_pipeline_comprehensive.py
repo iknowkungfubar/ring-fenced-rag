@@ -51,6 +51,7 @@ class TestFormatDocsExtended:
 
     def test_format_with_object_docs(self) -> None:
         from langchain_core.documents import Document
+
         doc = Document(page_content="Test", metadata={"source": "test.md"})
         result = format_docs([doc])
         assert "Test" in result
@@ -58,6 +59,7 @@ class TestFormatDocsExtended:
 
     def test_format_with_mixed_types(self) -> None:
         from langchain_core.documents import Document
+
         docs: list = [
             Document(page_content="Obj", metadata={"source": "a.md"}),
             {"content": "Dict", "metadata": {"source": "b.md"}},

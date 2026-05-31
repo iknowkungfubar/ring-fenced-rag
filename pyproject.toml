@@ -102,8 +102,6 @@ ignore = [
     "D416",    # Conflicts with D407
     "COM812",  # Handled by formatter
     "ISC001",  # Handled by formatter
-    "ANN101",  # self type annotation is redundant
-    "ANN102",  # cls type annotation is redundant
     "EM101",   # str in exception — acceptable for simple cases
     "EM102",   # f-string in exception — acceptable for simple cases
     "S101",    # assert in tests — required for pytest

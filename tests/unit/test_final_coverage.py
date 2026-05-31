@@ -37,7 +37,9 @@ class TestClientHelpers:
         with patch("rfr.cli.client.Path.home", return_value=tmp_path):
             assert _get_api_key() == "rfr_file_key_67890"
 
-    def test_get_api_key_config_read_error(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    def test_get_api_key_config_read_error(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
         monkeypatch.delenv("RFR_API_KEY", raising=False)
         config_dir = tmp_path / ".rfr"
         config_dir.mkdir()

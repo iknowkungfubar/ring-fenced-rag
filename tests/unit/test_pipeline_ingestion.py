@@ -27,7 +27,12 @@ class TestIngestDocuments:
         """Ingesting a single file should succeed."""
         mock_parse.return_value = [MagicMock()]
         mock_chunk.return_value = [MagicMock()]
-        mock_index.return_value = {"num_added": 1, "num_updated": 0, "num_skipped": 0, "num_deleted": 0}
+        mock_index.return_value = {
+            "num_added": 1,
+            "num_updated": 0,
+            "num_skipped": 0,
+            "num_deleted": 0,
+        }
 
         result = ingest_documents(
             source="/tmp/test.md",
@@ -52,7 +57,12 @@ class TestIngestDocuments:
         """Ingesting a directory should succeed."""
         mock_parse_dir.return_value = [MagicMock(), MagicMock()]
         mock_chunk.return_value = [MagicMock()]
-        mock_index.return_value = {"num_added": 1, "num_updated": 0, "num_skipped": 0, "num_deleted": 0}
+        mock_index.return_value = {
+            "num_added": 1,
+            "num_updated": 0,
+            "num_skipped": 0,
+            "num_deleted": 0,
+        }
 
         with patch("os.path.isdir", return_value=True):
             result = ingest_documents(

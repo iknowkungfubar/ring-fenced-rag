@@ -46,4 +46,5 @@ class TestVersionInfo:
     def test_version_matches_static_format(self) -> None:
         """Version should match semver-like format."""
         import re
+
         assert re.match(r"^\d+\.\d+\.\d+", __version__), f"Version '{__version__}' not semver"

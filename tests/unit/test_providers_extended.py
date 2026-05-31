@@ -60,6 +60,7 @@ class TestGetChatModel:
     def test_lm_studio_model_has_temperature(self) -> None:
         """LM Studio model should have temperature config."""
         from langchain_openai import ChatOpenAI
+
         p = LMStudioProvider()
         model = p.get_chat_model()
         assert isinstance(model, ChatOpenAI)

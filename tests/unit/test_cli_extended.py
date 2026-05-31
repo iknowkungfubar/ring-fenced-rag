@@ -60,7 +60,9 @@ class _RichMockClient:
             latency_ms=350.0,
         )
 
-    def ingest_directory(self, path: str, default_role: str = "user", glob_pattern: str = "**/*") -> IngestResponse:
+    def ingest_directory(
+        self, path: str, default_role: str = "user", glob_pattern: str = "**/*"
+    ) -> IngestResponse:
         return IngestResponse(task_id="mock-task-id", status="completed", source=path)
 
     def ingest_file(self, path: str, allowed_roles: list[str] | None = None) -> IngestResponse:
@@ -110,7 +112,9 @@ class _RichMockClient:
     def revoke_key(self, prefix: str) -> DeactivateKeyResponse:
         return DeactivateKeyResponse(deactivated=True, prefix=prefix)
 
-    def list_documents(self, source: str | None = None, limit: int = 20, offset: int = 0) -> DocumentListResponse:
+    def list_documents(
+        self, source: str | None = None, limit: int = 20, offset: int = 0
+    ) -> DocumentListResponse:
         return DocumentListResponse(
             items=[
                 DocumentInfo(

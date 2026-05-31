@@ -55,6 +55,7 @@ class TestCliEdgeCases:
             mock_instance.get_ingestion_status.return_value.result = {"num_added": 3}
 
             import tempfile
+
             with tempfile.TemporaryDirectory() as tmpdir:
                 result = self.runner.invoke(cli, ["ingest", tmpdir, "--role", "admin"])
                 assert result.exit_code == 0, result.output

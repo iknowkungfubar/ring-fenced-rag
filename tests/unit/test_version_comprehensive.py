@@ -36,6 +36,7 @@ class TestGetGitVersion:
         mock_result = subprocess.CompletedProcess([], 0, stdout="v1.0.0\n", stderr="")
         mock_run.return_value = mock_result
         from rfr.__about__ import _get_git_version
+
         result = _get_git_version()
         assert result == "1.0.0"
 
@@ -45,6 +46,7 @@ class TestGetGitVersion:
         mock_result = subprocess.CompletedProcess([], 0, stdout="1.0.0a1\n", stderr="")
         mock_run.return_value = mock_result
         from rfr.__about__ import _get_git_version
+
         result = _get_git_version()
         assert result == "1.0.0a1"
 
@@ -54,6 +56,7 @@ class TestGetGitVersion:
         mock_result = subprocess.CompletedProcess([], 0, stdout="1.0.0-dirty\n", stderr="")
         mock_run.return_value = mock_result
         from rfr.__about__ import _get_git_version
+
         result = _get_git_version()
         assert result == "1.0.0-dirty"
 
@@ -63,6 +66,7 @@ class TestGetGitVersion:
         mock_result = subprocess.CompletedProcess([], 0, stdout="1.0.0-3-gdeadbeef\n", stderr="")
         mock_run.return_value = mock_result
         from rfr.__about__ import _get_git_version
+
         result = _get_git_version()
         assert result == "1.0.0-3-gdeadbeef"
 
@@ -71,6 +75,7 @@ class TestGetGitVersion:
         """When git fails, return None."""
         mock_run.side_effect = FileNotFoundError("git not found")
         from rfr.__about__ import _get_git_version
+
         result = _get_git_version()
         assert result is None
 
@@ -79,6 +84,7 @@ class TestGetGitVersion:
         """When git times out, return None."""
         mock_run.side_effect = subprocess.TimeoutExpired("git", 2)
         from rfr.__about__ import _get_git_version
+
         result = _get_git_version()
         assert result is None
 
@@ -92,6 +98,7 @@ class TestGetGitCommit:
         mock_result = subprocess.CompletedProcess([], 0, stdout="abc1234\n", stderr="")
         mock_run.return_value = mock_result
         from rfr.__about__ import _get_git_commit
+
         result = _get_git_commit()
         assert result == "abc1234"
 
@@ -100,6 +107,7 @@ class TestGetGitCommit:
         """When git fails, return 'unknown'."""
         mock_run.side_effect = FileNotFoundError("git not found")
         from rfr.__about__ import _get_git_commit
+
         result = _get_git_commit()
         assert result == "unknown"
 
@@ -112,6 +120,7 @@ class TestGetVersion:
         """When git version exists, use it."""
         mock_git.return_value = "2.0.0rc1"
         from rfr.__about__ import _get_version
+
         result = _get_version()
         assert result == "2.0.0rc1"
 
@@ -120,5 +129,6 @@ class TestGetVersion:
         """When git fails, use static version."""
         mock_git.return_value = None
         from rfr.__about__ import _get_version
+
         result = _get_version()
         assert result == _STATIC_VERSION

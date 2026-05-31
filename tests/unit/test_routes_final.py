@@ -111,7 +111,9 @@ class TestRoutesWithSourceMocks:
 
     @patch("rfr.models.database.create_session")
     @patch("rfr.models.orm.ApiKey")
-    def test_deactivate_nonexistent_key(self, mock_apikey_cls: MagicMock, mock_cs: MagicMock) -> None:
+    def test_deactivate_nonexistent_key(
+        self, mock_apikey_cls: MagicMock, mock_cs: MagicMock
+    ) -> None:
         """Deleting nonexistent key returns 404."""
         mock_sess = MagicMock()
         mock_cs.return_value.__enter__.return_value = mock_sess
