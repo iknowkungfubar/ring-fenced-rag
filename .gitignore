@@ -35,5 +35,8 @@ data/
 # ML Models (downloaded cache)
 .huggingface/
 
+# Node.js
+node_modules/
+
 # Logs
 *.log
