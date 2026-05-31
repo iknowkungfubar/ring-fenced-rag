@@ -60,7 +60,7 @@ def cli() -> None:
 )
 def init(force: bool) -> None:
     """Generate default configuration and docker-compose.yml."""
-    from rfr.config import AppConfig, load_config
+    from rfr.config import load_config
 
     console.print("[bold]Initializing Ring-Fenced RAG...[/bold]")
 

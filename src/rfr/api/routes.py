@@ -57,7 +57,7 @@ async def health() -> HealthResponse:
 
             conn.execute(text("SELECT 1"))
             db_status = "connected"
-    except Exception:
+    except Exception:  # noqa: BLE001
         db_status = "disconnected"
 
     return HealthResponse(

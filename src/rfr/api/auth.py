@@ -11,7 +11,7 @@ import hmac
 import secrets
 from datetime import UTC
 
-from fastapi import Header, HTTPException, Request
+from fastapi import HTTPException, Request, status as http_status
 from fastapi import status as http_status
 
 from rfr.config import AppConfig
@@ -79,7 +79,6 @@ def extract_bearer_token(request: Request) -> str | None:
 
 async def get_current_role(
     request: Request,
-    authorization: str | None = Header(None),
 ) -> str:
     """Extract and validate the user's role from the API key.
 
@@ -144,7 +143,6 @@ async def get_current_role(
 
 async def require_admin_role(
     request: Request,
-    authorization: str | None = Header(None),
 ) -> str:
     """Require the caller to have an admin role.
 

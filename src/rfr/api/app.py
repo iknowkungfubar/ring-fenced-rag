@@ -88,7 +88,7 @@ def create_app() -> FastAPI:
 
             init_db()
             logger.info("Database initialized")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Database initialization skipped (will retry): %s", e)
 
     # Shutdown event

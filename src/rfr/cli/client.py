@@ -46,7 +46,7 @@ def _get_api_key() -> str | None:
         try:
             data = tomllib.loads(config_path.read_text())
             return data.get("api_key")
-        except Exception:
+        except Exception:  # noqa: BLE001
             pass
     return None
 
@@ -119,7 +119,7 @@ class RfrClient:
                 detail = response.text
                 try:
                     detail = response.json().get("error", {}).get("message", detail)
-                except Exception:
+                except Exception:  # noqa: BLE001
                     pass
                 raise RfrClientError(
                     f"API error ({response.status_code}): {detail}",
