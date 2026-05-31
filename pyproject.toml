@@ -139,6 +139,8 @@ typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 reportUnknownMemberType = false
 reportUnknownVariableType = false
+reportUnusedFunction = false
+reportDeprecated = false
 
 [tool.pytest.ini_options]
 minversion = "8.0"
