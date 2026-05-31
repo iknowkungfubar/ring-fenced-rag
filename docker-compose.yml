@@ -1,4 +1,3 @@
-# Servers
 services:
   vector-db:
     image: pgvector/pgvector:0.8.0-pg17
@@ -17,8 +16,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - rfr-net
 
   redis:
     image: redis:7-alpine
@@ -33,74 +30,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - rfr-net
-
-  # LLM provider — uncomment and configure one of these
-
-  # vLLM (NVIDIA CUDA):
-  # llm:
-  #   image: vllm/vllm-openai:latest
-  #   container_name: rfr-llm
-  #   restart: unless-stopped
-  #   runtime: nvidia
-  #   ports:
-  #     - "8000:8000"
-  #   volumes:
-  #     - huggingface_cache:/root/.cache/huggingface
-  #   environment:
-  #     HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
-  #   command:
-  #     --model meta-llama/Meta-Llama-3-8B-Instruct
-  #     --max-model-len 4096
-  #     --gpu-memory-utilization 0.85
-  #   networks:
-  #     - rfr-net
-
-  # vLLM (AMD ROCm):
-  # llm:
-  #   image: vllm/vllm-openai-rocm:latest
-  #   container_name: rfr-llm
-  #   restart: unless-stopped
-  #   network_mode: host
-  #   devices:
-  #     - /dev/kfd
-  #     - /dev/dri
-  #   group_add:
-  #     - video
-  #   ipc: host
-  #   cap_add:
-  #     - SYS_PTRACE
-  #   security_opt:
-  #     - seccomp=unconfined
-  #   volumes:
-  #     - huggingface_cache:/root/.cache/huggingface
-  #   command:
-  #     --model meta-llama/Meta-Llama-3-8B-Instruct
-  #     --max-model-len 4096
-  #     --gpu-memory-utilization 0.85
-
-  # Ollama (lighter alternative, CPU/GPU):
-  # llm:
-  #   image: ollama/ollama:latest
-  #   container_name: rfr-llm
-  #   restart: unless-stopped
-  #   ports:
-  #     - "11434:11434"
-  #   volumes:
-  #     - ollama_data:/root/.ollama
-  #   environment:
-  #     OLLAMA_KEEP_ALIVE: 5m
-  #   networks:
-  #     - rfr-net
 
 volumes:
   pgvector_data:
   redis_data:
-  huggingface_cache:
-  ollama_data:
-
-networks:
-  rfr-net:
-    driver: bridge
-    internal: false  # Set true for production to block egress

@@ -147,7 +147,7 @@ async def require_admin_role(
 
     Same as get_current_role, but raises 403 if the role is not in the admin list.
     """
-    role = await get_current_role(request, authorization)
+    role = await get_current_role(request)
     cfg = AppConfig()
     if role not in cfg.auth.admin_roles:
         raise HTTPException(
