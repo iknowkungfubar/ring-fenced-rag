@@ -549,6 +549,19 @@ def logs(service: str | None, follow: bool) -> None:
 
 
 @cli.command()
+def version() -> None:
+    """Show detailed version information."""
+    from rfr.__about__ import version_info
+
+    info = version_info()
+    console.print("[bold]Ring-Fenced RAG[/bold]")
+    console.print(f"  Version:    {info['version']}")
+    console.print(f"  Git commit: {info['git_commit']}")
+    console.print(f"  Python:     {info['python']}")
+    console.print(f"  Platform:   {info['platform']}")
+
+
+@cli.command()
 def tui() -> None:
     """Launch the terminal user interface."""
     console.print("[bold]Launching TUI...[/bold]")

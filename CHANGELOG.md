@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **LM Studio support**: New `LMStudioProvider` with default endpoint `localhost:1234/v1` and `local-model` preset. Supports all LM Studio inference backends (CUDA, ROCm, Metal, CPU). Configurable via `RFR_LLM__PROVIDER=lm-studio`.
+- **Dynamic versioning**: Version is now derived from `git describe` tags at runtime, with static fallback. `rfr version` subcommand shows detailed version, git commit, Python version, and platform info.
+- **Provider factory**: `get_provider()` factory function dispatches by name to the correct provider class.
+- **32 provider tests**: Full coverage for vLLM, Ollama, LM Studio, OpenAI defaults and factory dispatch.
+
+### Added
+
 - **CLI interface** (`rfr`): 18 commands including `init`, `up`, `down`, `status`, `config show/set`, `ingest`, `query`, `keys create/list/revoke`, `docs list/delete`, `standalone`, `logs`, `tui`
 - **REST API**: 12 endpoints at `/api/v1/*` — health, query, ingest, documents CRUD, auth keys CRUD, admin reindex
 - **Ring-fenced RAG pipeline**: LCEL-based retrieval with PostgreSQL JSONB `@>` role filtering, mock LLM fallback for testing

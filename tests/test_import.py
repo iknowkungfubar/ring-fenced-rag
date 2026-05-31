@@ -10,4 +10,5 @@ def test_version() -> None:
     """Verify version string is set."""
     from rfr import __version__
 
-    assert __version__ == "1.0.0a1"
+    assert isinstance(__version__, str)
+    assert len(__version__) > 0

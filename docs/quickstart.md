@@ -60,7 +60,20 @@ rfr keys create web-access --role admin
 Edit `~/.rfr/config.toml` or use environment variables:
 
 ```bash
+# Use LM Studio (default on port 1234)
+export RFR_LLM__PROVIDER=lm-studio
+export RFR_LLM__BASE_URL=http://localhost:1234/v1
+
+# Use vLLM
 export RFR_LLM__PROVIDER=vllm
 export RFR_LLM__BASE_URL=http://localhost:8000/v1
 export RFR_LLM__MODEL=meta-llama/Meta-Llama-3-8B-Instruct
+
+# Use Ollama
+export RFR_LLM__PROVIDER=ollama
+export RFR_LLM__MODEL=llama3.2:3b
+
+# Or OpenAI (data leaves your network — explicit opt-in)
+export RFR_LLM__PROVIDER=openai
+export RFR_LLM__API_KEY=sk-...
 ```

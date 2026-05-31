@@ -122,7 +122,13 @@ class TestCli:
         """--version should print the package version."""
         result = self.runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
-        assert "1.0.0a1" in result.output
+        assert "rfr," in result.output or "ring-fenced-rag" in result.output
+
+    def test_version_command(self) -> None:
+        """'rfr version' should show detailed version info."""
+        result = self._invoke(["version"])
+        assert result.exit_code == 0, result.output
+        assert "Version" in result.output or "Git" in result.output
 
     def test_help(self) -> None:
         """--help should show command list."""

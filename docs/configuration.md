@@ -46,6 +46,7 @@ Nested config keys use `__` as delimiter:
 | `RFR_LLM__PROVIDER` | `llm.provider` | `ollama` |
 | `RFR_LLM__BASE_URL` | `llm.base_url` | `http://localhost:11434/v1` |
 | `RFR_LLM__MODEL` | `llm.model` | `llama3.2:3b` |
+| `RFR_LLM__TEMPERATURE` | `llm.temperature` | `0.1` |
 | `RFR_EMBEDDING__MODEL` | `embedding.model` | `all-MiniLM-L6-v2` |
 | `RFR_INGESTION__CHUNK_SIZE` | `ingestion.chunk_size` | `512` |
 | `RFR_DB__URL` | `database.url` | PostgreSQL connection string |
