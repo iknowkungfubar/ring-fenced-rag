@@ -1,0 +1,42 @@
+# Ring-Fenced RAG documentation
+site_name: Ring-Fenced RAG
+site_description: Self-hosted, zero-trust RAG with role-based access control enforced at the database level
+site_url: https://ring-fenced-rag.dev
+repo_url: https://github.com/iknowkungfubar/ring-fenced-rag
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: blue
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.expand
+    - navigation.indexes
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.details
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Architecture: architecture.md
+  - Configuration: configuration.md
+  - API Reference: api.md
+  - CLI Reference: cli.md
+  - Development: development.md
