@@ -27,9 +27,9 @@ dependencies = [
     "langchain-postgres>=0.0.14,<1",
     "langchain-text-splitters>=1.1.2,<3",
     "langchain-openai>=1.1.14,<3",
-    "sentence-transformers>=3,<4",
-    # ⚠ CVE-2026-1839: transformers transitive dep via sentence-transformers.
-    #   If your environment installs transformers directly, pin >=5.0.0rc3.
+    "sentence-transformers>=4,<6",
+    # transformers is a transitive dep via sentence-transformers — no separate pin needed
+    "transformers>=5.0.0rc3",
     "psycopg[binary]>=3.2,<4",
     "pgvector>=0.3,<1",
     "fastapi>=0.115,<1",
