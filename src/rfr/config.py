@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -114,6 +114,12 @@ class IngestionConfig(BaseSettings):
         default="incremental",
         description="SQLRecordManager cleanup mode for idempotent indexing",
     )
+    max_file_size_mb: int = Field(
+        default=100,
+        ge=1,
+        le=1024,
+        description="Maximum allowed file size for ingestion in MB",
+    )
 
 
 class DatabaseConfig(BaseSettings):
@@ -122,9 +128,12 @@ class DatabaseConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="rfr_db_")
 
     url: str = Field(
-        default="postgresql+psycopg://admin:secure_password@localhost:5432/rag_internal",
-        description="Full database connection URL",
+        default="",
+        description="Full database connection URL. "
+        "MUST be set via RFR_DB__URL environment variable in production. "
+        "Example: postgresql+psycopg://user:password@host:5432/dbname",
     )
+    _require_url: bool = False
     pool_size: int = Field(
         default=5,
         ge=1,
@@ -229,8 +238,8 @@ class ServerConfig(BaseSettings):
         description="Number of uvicorn workers",
     )
     cors_origins: list[str] = Field(
-        default=["*"],
-        description="Allowed CORS origins",
+        default=["http://localhost:5173", "http://localhost:8000", "http://127.0.0.1:5173", "http://127.0.0.1:8000"],
+        description="Allowed CORS origins for browser requests",
     )
     rate_limit_per_minute: int = Field(
         default=60,
@@ -281,6 +290,16 @@ class AppConfig(BaseSettings):
     def _ensure_data_dir(cls, v: str) -> str:
         Path(v).mkdir(parents=True, exist_ok=True)
         return v
+
+    @model_validator(mode="after")
+    def _require_db_url(self) -> "AppConfig":
+        """Require database URL when not in standalone mode."""
+        if not self.standalone and not self.database.url:
+            raise ValueError(
+                "Database URL (RFR_DB__URL) is required when not in standalone mode. "
+                "Set RFR_DB__URL or use RFR_STANDALONE=true for SQLite."
+            )
+        return self
 
     def save(self, path: Path | None = None) -> None:
         """Save the current config to a TOML file."""

@@ -1,11 +1,19 @@
 # Ring-Fenced RAG — Production Docker Compose
 #
+# 🔴 SECURITY NOTE: This file requires you to set environment variables.
+# Never use default/fallback passwords in production.
+#
 # Start:   docker compose -f docker-compose.prod.yml up -d
 # Stop:    docker compose -f docker-compose.prod.yml down
 # Logs:    docker compose -f docker-compose.prod.yml logs -f
 #
-# Configure via environment variables or .env file:
-#   RFR_DB__URL       — PostgreSQL connection string
+# Required environment variables:
+#   RFR_DB_PASSWORD  — PostgreSQL password (no default — MUST be set)
+#
+# Optional environment variables:
+#   RFR_DB__URL       — Full PostgreSQL connection string (overrides RFR_DB_USER/PASSWORD/NAME)
+#   RFR_DB_USER       — PostgreSQL user (default: admin)
+#   RFR_DB_NAME       — PostgreSQL database name (default: rag_internal)
 #   RFR_LLM__PROVIDER — vllm, ollama, or openai
 #   RFR_LLM__BASE_URL — LLM API endpoint
 #   RFR_LLM__MODEL    — Model name
@@ -21,7 +29,8 @@ services:
       - "5432"
     environment:
       POSTGRES_USER: ${RFR_DB_USER:-admin}
-      POSTGRES_PASSWORD: ${RFR_DB_PASSWORD:-secure_password}
+      # 🔴 REQUIRED: Set RFR_DB_PASSWORD in your environment
+      POSTGRES_PASSWORD: ${RFR_DB_PASSWORD}
       POSTGRES_DB: ${RFR_DB_NAME:-rag_internal}
     volumes:
       - pgvector_data:/var/lib/postgresql/data
@@ -60,7 +69,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      RFR_DB__URL: postgresql+psycopg://${RFR_DB_USER:-admin}:${RFR_DB_PASSWORD:-secure_password}@vector-db:5432/${RFR_DB_NAME:-rag_internal}
+      # 🔴 REQUIRED: Set RFR_DB_PASSWORD in your environment
+      RFR_DB__URL: postgresql+psycopg://${RFR_DB_USER:-admin}:${RFR_DB_PASSWORD}@vector-db:5432/${RFR_DB_NAME:-rag_internal}
       RFR_REDIS__URL: redis://redis:6379/0
       RFR_LLM__PROVIDER: ${RFR_LLM_PROVIDER:-ollama}
       RFR_LLM__BASE_URL: ${RFR_LLM_BASE_URL:-http://llm:11434/v1}
@@ -106,7 +116,8 @@ services:
     restart: unless-stopped
     command: ["celery", "-A", "rfr.ingestion.tasks", "worker", "--loglevel=info"]
     environment:
-      RFR_DB__URL: postgresql+psycopg://${RFR_DB_USER:-admin}:${RFR_DB_PASSWORD:-secure_password}@vector-db:5432/${RFR_DB_NAME:-rag_internal}
+      # 🔴 REQUIRED: Set RFR_DB_PASSWORD in your environment
+      RFR_DB__URL: postgresql+psycopg://${RFR_DB_USER:-admin}:${RFR_DB_PASSWORD}@vector-db:5432/${RFR_DB_NAME:-rag_internal}
       RFR_REDIS__URL: redis://redis:6379/0
     depends_on:
       vector-db:

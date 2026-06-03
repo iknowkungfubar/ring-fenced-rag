@@ -9,6 +9,8 @@ Creates and configures the FastAPI app with:
 
 from __future__ import annotations
 
+import time
+from collections import defaultdict
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -52,6 +54,35 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # Rate limiting
+    if cfg.server.rate_limit_per_minute > 0:
+        _rate_requests: dict[str, list[float]] = defaultdict(list)
+
+        @app.middleware("http")
+        async def rate_limit_middleware(request: Request, call_next):
+            client_ip = request.client.host if request.client else "unknown"
+            now = time.time()
+            window_start = now - 60.0
+
+            # Prune old requests outside the 60-second window
+            timestamps = _rate_requests[client_ip]
+            _rate_requests[client_ip] = [t for t in timestamps if t > window_start]
+
+            if len(_rate_requests[client_ip]) >= cfg.server.rate_limit_per_minute:
+                return JSONResponse(
+                    status_code=429,
+                    content={
+                        "error": {
+                            "code": "RATE_LIMITED",
+                            "message": f"Rate limit exceeded: max {cfg.server.rate_limit_per_minute} requests per minute",
+                            "details": {},
+                        },
+                    },
+                )
+
+            _rate_requests[client_ip].append(now)
+            return await call_next(request)
+
     # Register routers
     app.include_router(router)
 
@@ -82,6 +113,16 @@ def create_app() -> FastAPI:
 
         logger = logging.getLogger(__name__)
         logger.info("Ring-Fenced RAG v%s starting...", __version__)
+
+        # 🟢 Auth status check
+        if not cfg.auth.enabled:
+            logger.warning(
+                "🔴 AUTH IS DISABLED! Set RFR_AUTH__ENABLED=true in production. "
+                "Without authentication, any user can access all endpoints."
+            )
+        else:
+            logger.info("✅ Authentication enabled")
+
         # Initialize database
         try:
             from rfr.models.database import init_db
