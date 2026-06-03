@@ -12,7 +12,8 @@ class TestVersionInfo:
     """Version info structure."""
 
     def test_version_is_string(self) -> None:
-        assert isinstance(__version__, str) and len(__version__) > 0
+        assert isinstance(__version__, str)
+        assert len(__version__) > 0
 
     def test_git_commit_is_string(self) -> None:
         assert isinstance(__git_commit__, str)

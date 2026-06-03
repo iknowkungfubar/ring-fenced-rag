@@ -235,8 +235,7 @@ def create_rag_chain(
             ) from e
 
     # Wrap into a single callable
-    chain = RunnableLambda(retrieve_and_format) | RunnableLambda(build_response)
-    return chain
+    return RunnableLambda(retrieve_and_format) | RunnableLambda(build_response)
 
 
 def _normalize_docs(docs: list[Any]) -> list[dict[str, Any]]:  # type: ignore[explicit-any]

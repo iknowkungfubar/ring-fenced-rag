@@ -6,6 +6,7 @@ Handles auth header injection, error handling, and response parsing.
 
 from __future__ import annotations
 
+import contextlib
 import os
 from pathlib import Path
 from typing import Any
@@ -117,10 +118,8 @@ class RfrClient:
             response = self.client.request(method, path, **kwargs)
             if response.status_code >= 400:
                 detail = response.text
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     detail = response.json().get("error", {}).get("message", detail)
-                except (ValueError, TypeError):
-                    pass
                 raise RfrClientError(
                     f"API error ({response.status_code}): {detail}",
                 )

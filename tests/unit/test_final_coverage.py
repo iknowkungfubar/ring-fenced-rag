@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
-
-import pytest
 
 from rfr.cli.client import RfrClient, _default_base_url, _get_api_key
 from rfr.models.database import drop_db, get_async_session, reset_engine
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import pytest
 
 
 class TestClientHelpers:
@@ -93,7 +96,7 @@ class TestDatabaseEdgeCases:
             session = None
             import asyncio
 
-            async def get():
+            async def get() -> None:
                 nonlocal session
                 async for s in gen:
                     session = s

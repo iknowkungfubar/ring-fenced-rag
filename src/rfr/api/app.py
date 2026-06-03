@@ -77,18 +77,26 @@ def create_app() -> FastAPI:
 
         @app.middleware("http")
         async def rate_limit_middleware(request: Request, call_next):
-            client_ip = request.client.host if request.client else "unknown"
+            # Key by API key (Bearer token) when available, fall back to IP
+            auth = request.headers.get("Authorization", "")
+            if auth.startswith("Bearer "):
+                rate_key = auth[7:]  # full token as key
+                log_key = rate_key[:10] + "..."
+            else:
+                rate_key = request.client.host if request.client else "unknown"
+                log_key = rate_key
+
             now = time.time()
             window_start = now - 60.0
 
             # Prune old requests outside the 60-second window
-            timestamps = _rate_requests[client_ip]
-            _rate_requests[client_ip] = [t for t in timestamps if t > window_start]
+            timestamps = _rate_requests[rate_key]
+            _rate_requests[rate_key] = [t for t in timestamps if t > window_start]
 
-            if len(_rate_requests[client_ip]) >= cfg.server.rate_limit_per_minute:
+            if len(_rate_requests[rate_key]) >= cfg.server.rate_limit_per_minute:
                 _rate_logger.warning(
-                    "Rate limit hit: ip=%s path=%s limit=%d/min",
-                    client_ip,
+                    "Rate limit hit: key=%s path=%s limit=%d/min",
+                    log_key,
                     request.url.path,
                     cfg.server.rate_limit_per_minute,
                 )
@@ -103,7 +111,7 @@ def create_app() -> FastAPI:
                     },
                 )
 
-            _rate_requests[client_ip].append(now)
+            _rate_requests[rate_key].append(now)
             return await call_next(request)
 
     # Register routers

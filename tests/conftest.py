@@ -63,7 +63,10 @@ def document_factory() -> Any:
             "source": source,
             "doc_id": doc_id,
             "allowed_roles": roles or ["user"],
-            "title": source.rsplit("/", maxsplit=1)[-1].replace(".md", "").replace("_", " ").title(),
+            "title": source.rsplit("/", maxsplit=1)[-1]
+            .replace(".md", "")
+            .replace("_", " ")
+            .title(),
         }
         meta.update(metadata)
         return Document(page_content=content, metadata=meta)
@@ -109,7 +112,7 @@ def chunk_factory() -> Any:
     from rfr.ingestion.chunking import chunk_document
     from rfr.ingestion.embedding import LocalEmbeddings
 
-    embeddings = LocalEmbeddings()
+    LocalEmbeddings()
     splitter_kwargs: dict[str, int] = {"chunk_size": 200, "chunk_overlap": 20}
 
     def _create_chunks(
