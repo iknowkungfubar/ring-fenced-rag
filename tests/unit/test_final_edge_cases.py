@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from rfr.ingestion.parsing import parse_directory
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestParsingEdgeCases:

@@ -29,7 +29,7 @@ def _get_git_version() -> str | None:
     """
     try:
         repo_root = Path(__file__).resolve().parent.parent.parent
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603
             ["git", "-C", str(repo_root), "describe", "--tags", "--dirty=-dirty"],
             capture_output=True,
             text=True,
@@ -38,8 +38,7 @@ def _get_git_version() -> str | None:
         if result.returncode == 0:
             version = result.stdout.strip()
             # Strip leading 'v' if present (e.g. v1.0.0 → 1.0.0)
-            version = version.removeprefix("v")
-            return version
+            return version.removeprefix("v")
     except (subprocess.SubprocessError, FileNotFoundError):
         pass
     return None

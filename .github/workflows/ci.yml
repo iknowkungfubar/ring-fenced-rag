@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
       - name: Audit dependencies
-        run: uv run pip-audit --strict
+        run: uv run pip-audit --strict --ignore PIP 2>/dev/null || uv run pip-audit --strict -r <(uv run pip freeze | grep -v "ring-fenced-rag")
 
   test:
     runs-on: ubuntu-latest

@@ -85,12 +85,11 @@ async def query(
         raise HTTPException(status_code=422, detail="Query cannot be empty")
 
     try:
-        result = execute_rag_query(
+        return execute_rag_query(
             query=body.query,
             user_role=role,
             top_k=body.top_k,
         )
-        return result
     except RAGExecutionError as e:
         raise HTTPException(status_code=503, detail=str(e)) from e
 

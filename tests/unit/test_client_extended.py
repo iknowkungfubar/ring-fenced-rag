@@ -229,7 +229,7 @@ class TestClientEdgeCases:
 
     def test_client_double_close(self) -> None:
         """Double close should not error."""
-        client, mock = _make_client()
+        client, _mock = _make_client()
         client.close()
         client.close()  # second close should be no-op
         assert client._client is None
