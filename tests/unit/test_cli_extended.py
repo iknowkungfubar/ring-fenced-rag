@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -73,8 +73,8 @@ class _RichMockClient:
             task_id=task_id,
             status="completed",
             source="test",
-            started_at=datetime.now(timezone.utc),
-            completed_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
+            completed_at=datetime.now(UTC),
             result={"num_added": 3, "num_updated": 0, "num_skipped": 0, "num_deleted": 0},
         )
 
@@ -84,7 +84,7 @@ class _RichMockClient:
             key_prefix="rfr_mockke",
             name=name,
             role=role,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     def list_keys(self) -> KeyListResponse:
@@ -95,15 +95,15 @@ class _RichMockClient:
                     name="test-key",
                     role="admin",
                     is_active=True,
-                    created_at=datetime.now(timezone.utc),
-                    last_used_at=datetime.now(timezone.utc),
+                    created_at=datetime.now(UTC),
+                    last_used_at=datetime.now(UTC),
                 ),
                 KeyInfo(
                     prefix="rfr_def456",
                     name="readonly-key",
                     role="user",
                     is_active=True,
-                    created_at=datetime.now(timezone.utc),
+                    created_at=datetime.now(UTC),
                     last_used_at=None,
                 ),
             ],
@@ -123,7 +123,7 @@ class _RichMockClient:
                     title="Nginx Guide",
                     chunk_count=3,
                     allowed_roles=["senior_engineer"],
-                    ingested_at=datetime.now(timezone.utc),
+                    ingested_at=datetime.now(UTC),
                 ),
                 DocumentInfo(
                     doc_id="WF-001",
@@ -131,7 +131,7 @@ class _RichMockClient:
                     title="Office WiFi",
                     chunk_count=1,
                     allowed_roles=["senior_engineer", "junior_engineer"],
-                    ingested_at=datetime.now(timezone.utc),
+                    ingested_at=datetime.now(UTC),
                 ),
             ],
             total=2,
@@ -158,7 +158,7 @@ class TestCliExtended:
     def setup_method(self) -> None:
         self.runner = CliRunner()
 
-    def _invoke(self, args: list[str]) -> "Result":  # type: ignore[name-defined]
+    def _invoke(self, args: list[str]) -> Result:  # type: ignore[name-defined]
         with patch("rfr.cli.client.RfrClient", return_value=_RichMockClient()):
             return self.runner.invoke(cli, args)
 

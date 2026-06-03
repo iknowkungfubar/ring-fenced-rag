@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -54,20 +55,25 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # CSP header on every response (defence in depth)
+    # CSP + security headers on every response (defence in depth)
     @app.middleware("http")
-    async def csp_middleware(request: Request, call_next):
+    async def security_headers_middleware(request: Request, call_next):
         response = await call_next(request)
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
             "img-src 'self' data:; font-src 'self'; connect-src 'self'; "
             "form-action 'self'; base-uri 'self'; frame-ancestors 'none';"
         )
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
         return response
 
     # Rate limiting
     if cfg.server.rate_limit_per_minute > 0:
+        import logging as _rate_logging
+
         _rate_requests: dict[str, list[float]] = defaultdict(list)
+        _rate_logger = _rate_logging.getLogger("rfr.api.rate_limit")
 
         @app.middleware("http")
         async def rate_limit_middleware(request: Request, call_next):
@@ -80,6 +86,12 @@ def create_app() -> FastAPI:
             _rate_requests[client_ip] = [t for t in timestamps if t > window_start]
 
             if len(_rate_requests[client_ip]) >= cfg.server.rate_limit_per_minute:
+                _rate_logger.warning(
+                    "Rate limit hit: ip=%s path=%s limit=%d/min",
+                    client_ip,
+                    request.url.path,
+                    cfg.server.rate_limit_per_minute,
+                )
                 return JSONResponse(
                     status_code=429,
                     content={

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from rfr.__about__ import __title__, __version__, __git_commit__, version_info
+from rfr.__about__ import __git_commit__, __title__, __version__, version_info
 
 
 class TestVersionInfo:

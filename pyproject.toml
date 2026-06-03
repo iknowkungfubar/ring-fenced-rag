@@ -46,7 +46,8 @@ dependencies = [
     "unstructured>=0.16,<1",
     "python-multipart>=0.0.18",
     "anyio>=4.8,<5",
-    "orjson>=3.10,<4",
+    # 🔒 langchain-classic provides SQLRecordManager for idempotent ingestion
+    "langchain-classic>=1.0,<2",
 ]
 
 [dependency-groups]
@@ -63,6 +64,7 @@ dev = [
     "syrupy>=4.8,<5",
     "respx>=0.22,<1",
     "hypothesis>=6.155,<7",
+    "pip-audit>=2.7,<3",
 ]
 
 [project.optional-dependencies]

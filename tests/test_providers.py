@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 from rfr.api.providers import (
-    LMStudioProvider,
     LLMProvider,
+    LMStudioProvider,
     OllamaProvider,
     OpenAIProvider,
     get_provider,

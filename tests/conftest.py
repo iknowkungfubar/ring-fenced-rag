@@ -14,7 +14,6 @@ import pytest
 
 from rfr.config import AppConfig
 
-
 # ── Environment Isolation ──
 
 
@@ -45,7 +44,7 @@ def sqlite_db_url() -> str:
 
 
 @pytest.fixture
-def document_factory() -> Any:  # noqa: ANN401
+def document_factory() -> Any:
     """Factory fixture: create Document objects with overridable defaults.
 
     Usage:
@@ -64,7 +63,7 @@ def document_factory() -> Any:  # noqa: ANN401
             "source": source,
             "doc_id": doc_id,
             "allowed_roles": roles or ["user"],
-            "title": source.split("/")[-1].replace(".md", "").replace("_", " ").title(),
+            "title": source.rsplit("/", maxsplit=1)[-1].replace(".md", "").replace("_", " ").title(),
         }
         meta.update(metadata)
         return Document(page_content=content, metadata=meta)
@@ -73,7 +72,7 @@ def document_factory() -> Any:  # noqa: ANN401
 
 
 @pytest.fixture
-def api_key_factory() -> Any:  # noqa: ANN401
+def api_key_factory() -> Any:
     """Factory fixture: create ApiKey model instances.
 
     Usage:
@@ -101,7 +100,7 @@ def api_key_factory() -> Any:  # noqa: ANN401
 
 
 @pytest.fixture
-def chunk_factory() -> Any:  # noqa: ANN401
+def chunk_factory() -> Any:
     """Factory fixture: create document chunks with embedding vectors.
 
     Usage:
@@ -117,7 +116,7 @@ def chunk_factory() -> Any:  # noqa: ANN401
         texts: list[str],
         source: str = "test/source.md",
         roles: list[str] | None = None,
-    ) -> Any:  # noqa: ANN401
+    ) -> Any:
         from langchain_core.documents import Document
 
         docs = [
@@ -136,7 +135,7 @@ def chunk_factory() -> Any:  # noqa: ANN401
 
 
 @pytest.fixture(scope="module")
-def embeddings() -> Any:  # noqa: ANN401
+def embeddings() -> Any:
     """Cached embedding model — loaded once per module, shared across tests."""
     from rfr.ingestion.embedding import LocalEmbeddings
 

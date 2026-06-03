@@ -238,7 +238,12 @@ class ServerConfig(BaseSettings):
         description="Number of uvicorn workers",
     )
     cors_origins: list[str] = Field(
-        default=["http://localhost:5173", "http://localhost:8000", "http://127.0.0.1:5173", "http://127.0.0.1:8000"],
+        default=[
+            "http://localhost:5173",
+            "http://localhost:8000",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:8000",
+        ],
         description="Allowed CORS origins for browser requests",
     )
     rate_limit_per_minute: int = Field(
@@ -308,7 +313,7 @@ class AppConfig(BaseSettings):
         return v
 
     @model_validator(mode="after")
-    def _require_db_url(self) -> "AppConfig":
+    def _require_db_url(self) -> AppConfig:
         """Require database URL when not in standalone mode."""
         if not self.standalone and not self.database.url:
             raise ValueError(

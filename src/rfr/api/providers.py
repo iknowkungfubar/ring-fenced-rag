@@ -126,6 +126,7 @@ def get_provider(
 
     Raises:
         ValueError: If provider_name is unknown.
+
     """
     providers: dict[str, type[LLMProvider]] = {
         "vllm": vLLMProvider,

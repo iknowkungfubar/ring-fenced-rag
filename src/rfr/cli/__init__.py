@@ -156,7 +156,7 @@ def up(detach: bool, _gpu: str) -> None:
     )
     console.print("[bold]Starting Ring-Fenced RAG services...[/bold]")
     try:
-        subprocess.run(cmd, check=True)  # noqa: S603
+        subprocess.run(cmd, check=True)
         console.print("[green]Services started successfully.[/green]")
     except subprocess.CalledProcessError as e:
         console.print(f"[red]Failed to start services: {e}[/red]")
@@ -558,7 +558,7 @@ def logs(service: str | None, follow: bool) -> None:
         cmd.append(service)
 
     try:
-        subprocess.run(cmd, check=True)  # noqa: S603
+        subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
         console.print(f"[red]Failed to get logs: {e}[/red]")
         sys.exit(1)

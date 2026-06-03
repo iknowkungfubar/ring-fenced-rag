@@ -46,8 +46,6 @@ class TestCliEdgeCases:
 
     def test_ingest_with_role_flag(self) -> None:
         """ingest with --role flag should pass role to client."""
-        from rfr.cli.client import RfrClientError
-
         with patch("rfr.cli.client.RfrClient") as mock_client_cls:
             mock_instance = mock_client_cls.return_value
             mock_instance.ingest_directory.return_value.task_id = "task-1"
