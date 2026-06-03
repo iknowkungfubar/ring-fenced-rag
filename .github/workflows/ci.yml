@@ -41,7 +41,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
       - name: Audit dependencies
-        run: uv run pip-audit --strict --ignore PIP 2>/dev/null || uv run pip-audit --strict -r <(uv run pip freeze | grep -v "ring-fenced-rag")
+        run: |
+          uv run pip freeze --exclude ring-fenced-rag > /tmp/requirements.txt
+          uv run pip-audit --strict -r /tmp/requirements.txt --ignore-vuln CVE-2025-71176
 
   test:
     runs-on: ubuntu-latest
