@@ -1,7 +1,6 @@
-# 🔴 SECURITY: This file uses hardcoded credentials for local dev ONLY.
-# In production, use docker-compose.prod.yml which requires env vars.
-# NEVER commit this file with real credentials.
-
+# 🔴 SECURITY: Local development only.
+# In production, set POSTGRES_PASSWORD via environment variable.
+# NEVER commit real credentials here.
 services:
   vector-db:
     image: pgvector/pgvector:0.8.0-pg17
@@ -11,8 +10,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: admin
-      # ⚠ WARNING: Change this password before any non-local use.
-      # Set via environment variable: POSTGRES_PASSWORD=<your-secure-password>
+      # ⚠ Change this password before any non-local use
       POSTGRES_PASSWORD: secure_password
       POSTGRES_DB: rag_internal
     volumes:

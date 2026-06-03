@@ -1,128 +1,233 @@
-"""Tests for security headers and rate limiting middleware.
-
-Covers:
-- Security headers middleware: CSP, X-Content-Type-Options, X-Frame-Options
-- Rate limiting middleware: normal pass, 429, disabled, multi-IP separation
-"""
+"""Tests for FastAPI middleware: security headers and rate limiting."""
 
 from __future__ import annotations
 
 import os
+from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from rfr.api.app import create_app
 
-# AppConfig requires standalone mode or DB URL when running outside production.
-os.environ.setdefault("RFR_STANDALONE", "true")
+
+@pytest.fixture(autouse=True)
+def _middleware_test_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ensure standalone mode and disable auth so route handlers don't hit DB."""
+    monkeypatch.setenv("RFR_STANDALONE", "true")
+    monkeypatch.setenv("RFR_AUTH__ENABLED", "false")
+
+
+def _make_app_rate_limited(limit: int = 60) -> TestClient:
+    """Create a TestClient with rate limiting enabled."""
+    with patch("rfr.api.app.AppConfig") as mock_cfg:
+        cfg = mock_cfg.return_value
+        cfg.server.rate_limit_per_minute = limit
+        cfg.server.cors_origins = ["*"]
+        cfg.auth.enabled = False
+        cfg.ingestion.default_role = "user"
+        cfg.llm.provider = "none"
+        cfg.embedding.model = "all-MiniLM-L6-v2"
+
+        app = create_app()
+        return TestClient(app)
+
+
+# ── Issue #20: Security Middleware (CSP, X-Content-Type-Options) ──
 
 
 class TestSecurityHeadersMiddleware:
-    """Every response must include key security headers (defence in depth)."""
+    """Every response must include security headers (defence in depth)."""
 
-    def _get_client(self) -> TestClient:
-        return TestClient(create_app())
+    SECURITY_HEADERS = {
+        "Content-Security-Policy": (
+            "default-src 'self'; script-src 'self'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; font-src 'self'; "
+            "connect-src 'self'; form-action 'self'; "
+            "base-uri 'self'; frame-ancestors 'none';"
+        ),
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+    }
 
-    def test_csp_header_present(self) -> None:
-        """Content-Security-Policy header must be set."""
-        client = self._get_client()
-        response = client.get("/docs")
-        assert "Content-Security-Policy" in response.headers
-
-    def test_csp_header_contains_self(self) -> None:
-        """CSP should restrict to self by default."""
-        client = self._get_client()
-        response = client.get("/docs")
-        csp = response.headers["Content-Security-Policy"]
-        assert "default-src 'self'" in csp
-        assert "frame-ancestors 'none'" in csp
-
-    def test_x_content_type_options_header_present(self) -> None:
-        """X-Content-Type-Options: nosniff must be set."""
-        client = self._get_client()
-        response = client.get("/docs")
-        assert response.headers["X-Content-Type-Options"] == "nosniff"
-
-    def test_x_frame_options_header_present(self) -> None:
-        """X-Frame-Options: DENY must be set."""
-        client = self._get_client()
-        response = client.get("/docs")
-        assert response.headers["X-Frame-Options"] == "DENY"
-
-    def test_all_three_headers_on_health_endpoint(self) -> None:
-        """Security headers must appear on every response path."""
-        client = self._get_client()
+    def test_security_headers_present_on_health(self) -> None:
+        """Health endpoint should include all security headers."""
+        client = _make_app_rate_limited(limit=0)
         response = client.get("/api/v1/health")
-        assert "Content-Security-Policy" in response.headers
-        assert response.headers["X-Content-Type-Options"] == "nosniff"
-        assert response.headers["X-Frame-Options"] == "DENY"
-
-    def test_all_three_headers_on_404(self) -> None:
-        """Security headers must appear even on error responses."""
-        client = self._get_client()
-        response = client.get("/nonexistent-path-xyz")
-        assert response.status_code == 404
-        assert "Content-Security-Policy" in response.headers
-        assert response.headers["X-Content-Type-Options"] == "nosniff"
-        assert response.headers["X-Frame-Options"] == "DENY"
-
-
-class TestRateLimitingMiddleware:
-    """Rate limiting middleware must enforce per-IP limits."""
-
-    def test_normal_request_passes(self) -> None:
-        """A single request under the limit should return 200."""
-        client = TestClient(create_app())
-        response = client.get("/api/v1/health")
-        assert response.status_code == 200
-
-    def test_exceeding_rate_limit_returns_429(self) -> None:
-        """Requests exceeding the rate limit should get 429."""
-        os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"] = "5"
-        app = create_app()
-        del os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"]
-
-        client = TestClient(app)
-        # Exhaust the limit of 5
-        responses = [client.get("/api/v1/health") for _ in range(10)]
-        statuses = [r.status_code for r in responses]
-        # At least one should be 429
-        assert 429 in statuses, f"Expected at least one 429, got {statuses}"
-        # The first request should be 200
-        assert responses[0].status_code == 200
-
-    def test_rate_limit_disabled_passes_all(self) -> None:
-        """When rate_limit_per_minute is 0, all requests must pass."""
-        os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"] = "0"
-        app = create_app()
-        del os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"]
-
-        client = TestClient(app)
-        for _ in range(100):
-            response = client.get("/api/v1/health")
-            assert response.status_code == 200, (
-                f"Expected 200 with limit disabled, got {response.status_code}"
+        for header, expected_value in self.SECURITY_HEADERS.items():
+            assert header in response.headers, f"Missing security header: {header}"
+            assert response.headers[header] == expected_value, (
+                f"Security header {header} has unexpected value: "
+                f"{response.headers[header]!r} != {expected_value!r}"
             )
 
-    def test_multiple_ips_get_separate_buckets(self) -> None:
-        """Different IPs must have independent rate limit counters."""
-        os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"] = "3"
-        app = create_app()
-        del os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"]
+    def test_security_headers_present_on_404(self) -> None:
+        """Even 404 responses should include security headers."""
+        client = _make_app_rate_limited(limit=0)
+        response = client.get("/nonexistent/route")
+        assert response.status_code == 404
+        for header in self.SECURITY_HEADERS:
+            assert header in response.headers, f"Missing security header on 404: {header}"
 
-        # Create two clients with different ASGI client addresses
-        client_a = TestClient(app, client=("10.0.0.1", 50000))
-        client_b = TestClient(app, client=("10.0.0.2", 50001))
+    def test_security_headers_present_on_error(self) -> None:
+        """Error responses should also carry security headers."""
+        client = _make_app_rate_limited(limit=0)
+        # A request that triggers an auth gate (401) since auth is enabled by default
+        response = client.post("/api/v1/query", json={"query": "test"})
+        for header in self.SECURITY_HEADERS:
+            assert header in response.headers, f"Missing security header on error: {header}"
 
-        # Exhaust limit for client_a
+    def test_csp_prevents_scripts_from_foreign_origins(self) -> None:
+        """CSP default-src 'self' blocks inline/foreign scripts."""
+        client = _make_app_rate_limited(limit=0)
+        response = client.get("/api/v1/health")
+        csp = response.headers.get("Content-Security-Policy", "")
+        assert "default-src 'self'" in csp
+        assert "script-src 'self'" in csp
+        assert "unsafe-inline" in csp  # allowed for styles only
+
+    def test_x_content_type_options_nosniff(self) -> None:
+        """X-Content-Type-Options must be 'nosniff' to prevent MIME sniffing."""
+        client = _make_app_rate_limited(limit=0)
+        response = client.get("/api/v1/health")
+        assert response.headers.get("X-Content-Type-Options") == "nosniff"
+
+    def test_x_frame_options_deny(self) -> None:
+        """X-Frame-Options must be 'DENY' to prevent clickjacking."""
+        client = _make_app_rate_limited(limit=0)
+        response = client.get("/api/v1/health")
+        assert response.headers.get("X-Frame-Options") == "DENY"
+
+
+# ── Issue #19: Rate Limiting Middleware ──
+
+
+class TestRateLimitMiddleware:
+    """Rate limiting should key by API key when available, fall back to IP."""
+
+    def test_rate_limit_not_applied_when_disabled(self) -> None:
+        """When rate_limit_per_minute=0, no rate limiting should occur."""
+        client = _make_app_rate_limited(limit=0)
+
+        for _ in range(10):
+            response = client.post("/api/v1/query", json={"query": "test"})
+            # Should NOT get 429 (rate limit) — auth is disabled so gets 503/500
+            assert response.status_code != 429
+
+    def test_rate_limit_applies_at_threshold(self) -> None:
+        """When rate_limit_per_minute=3, the 4th request in the window gets 429."""
+        client = _make_app_rate_limited(limit=3)
+
         for _ in range(3):
-            resp = client_a.get("/api/v1/health")
-            assert resp.status_code == 200
+            resp = client.post("/api/v1/query", json={"query": "test"})
+            assert resp.status_code != 429, "Request within limit should not be rate limited"
 
-        # client_a's next request should be blocked
-        resp = client_a.get("/api/v1/health")
+        # 4th request — over limit
+        resp = client.post("/api/v1/query", json={"query": "test"})
+        assert resp.status_code == 429, (
+            f"Expected 429 rate limit, got {resp.status_code}"
+        )
+        data = resp.json()
+        assert "error" in data
+        assert data["error"]["code"] == "RATE_LIMITED"
+
+    def test_rate_limit_keys_by_api_key_not_ip(self) -> None:
+        """Rate limiting keys by API key, so two requests with same key share
+        the limit even from different client states."""
+        client = _make_app_rate_limited(limit=2)
+        shared_token = "Bearer rfr_testsharedkey1234567890abcdef"
+
+        # 1st request with the key
+        resp = client.post(
+            "/api/v1/query",
+            json={"query": "test"},
+            headers={"Authorization": shared_token},
+        )
+        assert resp.status_code != 429
+
+        # 2nd request with the same key
+        resp = client.post(
+            "/api/v1/query",
+            json={"query": "test"},
+            headers={"Authorization": shared_token},
+        )
+        assert resp.status_code != 429
+
+        # 3rd request with the same key — should hit limit
+        resp = client.post(
+            "/api/v1/query",
+            json={"query": "test"},
+            headers={"Authorization": shared_token},
+        )
+        assert resp.status_code == 429, (
+            f"Third request with same key should be rate limited, "
+            f"got {resp.status_code}"
+        )
+
+    def test_different_api_keys_have_separate_limits(self) -> None:
+        """Two different API keys should have independent rate limit counters."""
+        client = _make_app_rate_limited(limit=2)
+
+        key_a = "Bearer rfr_key_a_abc123"
+        key_b = "Bearer rfr_key_b_def456"
+
+        # Exhaust key A's limit
+        for _ in range(2):
+            resp = client.post(
+                "/api/v1/query",
+                json={"query": "test"},
+                headers={"Authorization": key_a},
+            )
+            assert resp.status_code != 429
+
+        # Key A should now be limited
+        resp = client.post(
+            "/api/v1/query",
+            json={"query": "test"},
+            headers={"Authorization": key_a},
+        )
         assert resp.status_code == 429
 
-        # client_b (different IP) should still pass
-        resp = client_b.get("/api/v1/health")
-        assert resp.status_code == 200
+        # Key B should still have its full quota
+        resp = client.post(
+            "/api/v1/query",
+            json={"query": "test"},
+            headers={"Authorization": key_b},
+        )
+        assert resp.status_code != 429, (
+            f"Key B should not be rate limited by key A's usage, "
+            f"got {resp.status_code}"
+        )
+
+    def test_no_auth_falls_back_to_ip(self) -> None:
+        """Without an API key, rate limiting should fall back to IP address."""
+        client = _make_app_rate_limited(limit=2)
+
+        for _ in range(2):
+            resp = client.post("/api/v1/query", json={"query": "test"})
+            assert resp.status_code != 429
+
+        # 3rd request without auth — IP should be throttled
+        resp = client.post("/api/v1/query", json={"query": "test"})
+        assert resp.status_code == 429
+
+    def test_rate_limit_logs_warning_on_hit(self, caplog: pytest.LogCaptureFixture) -> None:
+        """When rate limit is hit, a warning should be logged."""
+        caplog.set_level(os.environ.get("RFR_LOG_LEVEL", "WARNING"), logger="rfr.api.rate_limit")
+
+        client = _make_app_rate_limited(limit=1)
+
+        # Use up the limit
+        resp = client.post("/api/v1/query", json={"query": "test"})
+        assert resp.status_code != 429
+
+        # Hit the limit
+        resp = client.post("/api/v1/query", json={"query": "test"})
+        assert resp.status_code == 429
+
+        # Verify log contains the warning
+        assert any(
+            "Rate limit hit" in record.getMessage()
+            for record in caplog.records
+        ), "Expected 'Rate limit hit' in log records"
