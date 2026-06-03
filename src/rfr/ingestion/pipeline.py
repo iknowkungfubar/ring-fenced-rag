@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from langchain.indexes import SQLRecordManager, index
+from langchain_classic.indexes import SQLRecordManager, index
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
 

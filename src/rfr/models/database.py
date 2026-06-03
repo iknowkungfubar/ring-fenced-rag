@@ -12,7 +12,64 @@ from sqlalchemy.orm import Session, sessionmaker
 from rfr.config import AppConfig
 from rfr.models.orm import Base
 
-# Global engine and session factory — initialized once
+# ---------------------------------------------------------------------------
+# Column-name allowlist for SQL injection defence
+# ---------------------------------------------------------------------------
+# Any user-supplied value that is used as a column or table name
+# MUST be checked against this set before being interpolated into
+# a query.  This prevents SQL injection via dynamic column names
+# even when using parameterised values for data.
+_ALLOWED_COLUMN_NAMES: frozenset[str] = frozenset({
+    "id",
+    "content",
+    "embedding",
+    "source",
+    "doc_id",
+    "chunk_index",
+    "created_at",
+    "updated_at",
+    "key_hash",
+    "key_prefix",
+    "name",
+    "role",
+    "is_active",
+    "last_used_at",
+    "status",
+    "error_message",
+    "started_at",
+    "completed_at",
+    "result",
+})
+
+
+def validate_column_name(name: str) -> str:
+    """Assert that *name* is a known database column.
+
+    Call this before using a user-supplied string as a column name
+    in any SQL expression, even a parameterised one.
+
+    Args:
+        name: The proposed column name.
+
+    Returns:
+        The same *name* on success.
+
+    Raises:
+        ValueError: If *name* is not in the allowlist.
+    """
+    if name not in _ALLOWED_COLUMN_NAMES:
+        msg = (
+            f"Column name '{name}' is not in the allowlist. "
+            f"Allowed columns: {', '.join(sorted(_ALLOWED_COLUMN_NAMES))}"
+        )
+        raise ValueError(msg)
+    return name
+
+
+# ---------------------------------------------------------------------------
+# Global engine and session factory
+# ---------------------------------------------------------------------------
+
 _engine: Any = None
 _SessionLocal: sessionmaker[Session] | None = None
 
@@ -32,7 +89,7 @@ def get_engine(db_url: str | None = None, **kwargs: Any) -> Any:  # noqa: ANN401
     if _engine is None:
         url = db_url or AppConfig().database.url
         if db_url:
-            # Explicit URL → no default pool config (handles SQLite etc.)
+            # Explicit URL -> no default pool config (handles SQLite etc.)
             _engine = create_engine(url, **kwargs)
         else:
             cfg = AppConfig().database
