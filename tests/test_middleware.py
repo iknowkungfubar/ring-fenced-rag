@@ -65,3 +65,64 @@ class TestSecurityHeadersMiddleware:
         assert "Content-Security-Policy" in response.headers
         assert response.headers["X-Content-Type-Options"] == "nosniff"
         assert response.headers["X-Frame-Options"] == "DENY"
+
+
+class TestRateLimitingMiddleware:
+    """Rate limiting middleware must enforce per-IP limits."""
+
+    def test_normal_request_passes(self) -> None:
+        """A single request under the limit should return 200."""
+        client = TestClient(create_app())
+        response = client.get("/api/v1/health")
+        assert response.status_code == 200
+
+    def test_exceeding_rate_limit_returns_429(self) -> None:
+        """Requests exceeding the rate limit should get 429."""
+        os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"] = "5"
+        app = create_app()
+        del os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"]
+
+        client = TestClient(app)
+        # Exhaust the limit of 5
+        responses = [client.get("/api/v1/health") for _ in range(10)]
+        statuses = [r.status_code for r in responses]
+        # At least one should be 429
+        assert 429 in statuses, f"Expected at least one 429, got {statuses}"
+        # The first request should be 200
+        assert responses[0].status_code == 200
+
+    def test_rate_limit_disabled_passes_all(self) -> None:
+        """When rate_limit_per_minute is 0, all requests must pass."""
+        os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"] = "0"
+        app = create_app()
+        del os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"]
+
+        client = TestClient(app)
+        for _ in range(100):
+            response = client.get("/api/v1/health")
+            assert response.status_code == 200, (
+                f"Expected 200 with limit disabled, got {response.status_code}"
+            )
+
+    def test_multiple_ips_get_separate_buckets(self) -> None:
+        """Different IPs must have independent rate limit counters."""
+        os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"] = "3"
+        app = create_app()
+        del os.environ["RFR_SERVER__RATE_LIMIT_PER_MINUTE"]
+
+        # Create two clients with different ASGI client addresses
+        client_a = TestClient(app, client=("10.0.0.1", 50000))
+        client_b = TestClient(app, client=("10.0.0.2", 50001))
+
+        # Exhaust limit for client_a
+        for _ in range(3):
+            resp = client_a.get("/api/v1/health")
+            assert resp.status_code == 200
+
+        # client_a's next request should be blocked
+        resp = client_a.get("/api/v1/health")
+        assert resp.status_code == 429
+
+        # client_b (different IP) should still pass
+        resp = client_b.get("/api/v1/health")
+        assert resp.status_code == 200
