@@ -125,16 +125,15 @@ class TestRateLimitMiddleware:
 
         # 4th request — over limit
         resp = client.post("/api/v1/query", json={"query": "test"})
-        assert resp.status_code == 429, (
-            f"Expected 429 rate limit, got {resp.status_code}"
-        )
+        assert resp.status_code == 429, f"Expected 429 rate limit, got {resp.status_code}"
         data = resp.json()
         assert "error" in data
         assert data["error"]["code"] == "RATE_LIMITED"
 
     def test_rate_limit_keys_by_api_key_not_ip(self) -> None:
         """Rate limiting keys by API key, so two requests with same key share
-        the limit even from different client states."""
+        the limit even from different client states.
+        """
         client = _make_app_rate_limited(limit=2)
         shared_token = "Bearer rfr_testsharedkey1234567890abcdef"
 
@@ -161,8 +160,7 @@ class TestRateLimitMiddleware:
             headers={"Authorization": shared_token},
         )
         assert resp.status_code == 429, (
-            f"Third request with same key should be rate limited, "
-            f"got {resp.status_code}"
+            f"Third request with same key should be rate limited, got {resp.status_code}"
         )
 
     def test_different_api_keys_have_separate_limits(self) -> None:
@@ -196,8 +194,7 @@ class TestRateLimitMiddleware:
             headers={"Authorization": key_b},
         )
         assert resp.status_code != 429, (
-            f"Key B should not be rate limited by key A's usage, "
-            f"got {resp.status_code}"
+            f"Key B should not be rate limited by key A's usage, got {resp.status_code}"
         )
 
     def test_no_auth_falls_back_to_ip(self) -> None:
@@ -227,7 +224,6 @@ class TestRateLimitMiddleware:
         assert resp.status_code == 429
 
         # Verify log contains the warning
-        assert any(
-            "Rate limit hit" in record.getMessage()
-            for record in caplog.records
-        ), "Expected 'Rate limit hit' in log records"
+        assert any("Rate limit hit" in record.getMessage() for record in caplog.records), (
+            "Expected 'Rate limit hit' in log records"
+        )

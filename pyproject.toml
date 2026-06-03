@@ -144,6 +144,8 @@ ignore = [
     "TRY300",  # Try body has statements — pre-existing
     "TRY301",  # raise within try — pre-existing
     "E501",    # Line too long — pre-existing
+    "C901",    # Function too complex — pre-existing
+    "PLR0915", # Too many statements — pre-existing
 ]
 fixable = ["ALL"]
 
@@ -155,6 +157,7 @@ fixable = ["ALL"]
     "INP001", "PLC0415", "PLR2004", "S108",
     "ARG001", "ARG002", "TRY003", "B017", "PT011", "BLE001",
     "FBT001", "FBT002",
+    "RUF012", "S105",
 ]
 "src/rfr/cli/*" = ["PLC0415", "ARG001", "FBT001", "FIX002", "TD002", "TD003", "S603", "S607", "ANN401", "RUF012"]
 "src/rfr/__about__.py" = ["S607"]
