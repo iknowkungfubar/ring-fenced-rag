@@ -3,6 +3,7 @@
 Includes security controls:
 - Path traversal sanitization (rejects paths escaping allowed directories)
 - File size limits (configurable via RFR_INGEST__MAX_FILE_SIZE_MB)
+- Content-based MIME validation (magic byte checks for known formats)
 """
 
 from __future__ import annotations
@@ -19,6 +20,54 @@ from rfr.config import AppConfig
 logger = logging.getLogger(__name__)
 
 _SUPPORTED_EXTENSIONS = {".md", ".txt", ".pdf", ".html", ".json"}
+
+# Magic byte signatures for content-based MIME validation.
+# Each entry maps a file extension to a byte prefix or tuple of prefixes
+# that the file content must start with.
+_MAGIC_SIGNATURES: dict[str, bytes | tuple[bytes, ...]] = {
+    ".pdf": b"%PDF",
+    ".html": (b"<html", b"<!DOCTYPE"),
+    ".json": (b"{", b"["),
+}
+
+
+def _validate_content_magic(filepath: Path) -> None:
+    """Verify the file's magic bytes match its extension.
+
+    Reads the first few bytes of the file and checks them against known
+    signatures for the file's extension.  Extensions without a known
+    signature (e.g. .md, .txt) are skipped.
+
+    Args:
+        filepath: Path to the file to validate.
+
+    Raises:
+        ValueError: If the file content does not match the expected
+                    magic bytes for its extension.
+    """
+    ext = filepath.suffix.lower()
+    if ext not in _MAGIC_SIGNATURES:
+        return  # No magic known for this extension — skip validation
+
+    signatures = _MAGIC_SIGNATURES[ext]
+    if isinstance(signatures, bytes):
+        signatures = (signatures,)
+
+    max_len = max(len(sig) for sig in signatures)
+    try:
+        with filepath.open("rb") as f:
+            header = f.read(max_len)
+    except OSError as e:
+        raise ValueError(f"Unable to read magic bytes from '{filepath}': {e}") from e
+
+    if not any(header.startswith(sig) for sig in signatures):
+        expected = " or ".join(repr(s) for s in signatures)
+        actual_repr = repr(header[:max_len])
+        raise ValueError(
+            f"Content MIME mismatch for '{filepath}': expected header "
+            f"starting with {expected}, got {actual_repr}. "
+            "The file extension does not match its actual content."
+        )
 
 
 def _resolve_safe_path(path: str, allowed_base: Path | None = None) -> Path:
@@ -98,6 +147,8 @@ def parse_document(
     Security:
         - Path traversal is detected and blocked.
         - File size is checked against the configured limit (default 100 MB).
+        - Content-based MIME validation ensures the file's magic bytes
+          match its declared extension.
 
     Args:
         path: Absolute or relative path to the document.
@@ -110,7 +161,8 @@ def parse_document(
     Raises:
         FileNotFoundError: If the path doesn't exist.
         ValueError: If the file type is unsupported, path traversal is
-                    detected, or the file exceeds size limits.
+                    detected, the file exceeds size limits, or its content
+                    does not match the expected format.
 
     """
     # Resolve path with traversal protection
@@ -121,6 +173,9 @@ def parse_document(
 
     # Check file size before reading
     _check_file_size(filepath)
+
+    # Content-based MIME validation (magic bytes)
+    _validate_content_magic(filepath)
 
     content = filepath.read_text(encoding="utf-8")
 
@@ -147,6 +202,7 @@ def parse_directory(
     Security:
         - Path traversal is detected and blocked.
         - Each file is checked against the configured size limit (default 100 MB).
+        - Content-based MIME validation is applied per file.
 
     Args:
         path: Root directory to search.

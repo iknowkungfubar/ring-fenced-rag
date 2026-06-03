@@ -518,12 +518,24 @@ def standalone(port: int) -> None:
 
     import uvicorn
 
+    ssl_kwargs: dict[str, str] = {}
+    if cfg.server.ssl_certfile and cfg.server.ssl_keyfile:
+        ssl_kwargs["ssl_certfile"] = cfg.server.ssl_certfile
+        ssl_kwargs["ssl_keyfile"] = cfg.server.ssl_keyfile
+        console.print("[bold green]🔒 HTTPS mode (SSL configured)[/bold green]")
+    elif cfg.server.ssl_certfile or cfg.server.ssl_keyfile:
+        console.print(
+            "[yellow]⚠ Incomplete SSL config — both ssl_certfile and ssl_keyfile "
+            "must be set for HTTPS. Falling back to HTTP.[/yellow]"
+        )
+
     try:
         uvicorn.run(
             "rfr.api.app:create_app",
             host=cfg.server.host,
             port=port,
             log_level=cfg.server.log_level.lower(),
+            **ssl_kwargs,  # type: ignore[arg-type]
         )
     except KeyboardInterrupt:
         console.print("\nServer stopped.")

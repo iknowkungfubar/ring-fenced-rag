@@ -247,6 +247,22 @@ class ServerConfig(BaseSettings):
         le=10000,
         description="Max requests per minute per API key (0 = unlimited)",
     )
+    ssl_certfile: str = Field(
+        default="",
+        description=(
+            "Path to SSL certificate file for HTTPS. "
+            "Set via RFR_SERVER__SSL_CERTFILE env var. "
+            "Leave empty for plain HTTP."
+        ),
+    )
+    ssl_keyfile: str = Field(
+        default="",
+        description=(
+            "Path to SSL private key file for HTTPS. "
+            "Set via RFR_SERVER__SSL_KEYFILE env var. "
+            "Leave empty for plain HTTP."
+        ),
+    )
 
 
 class AppConfig(BaseSettings):

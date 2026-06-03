@@ -54,6 +54,17 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # CSP header on every response (defence in depth)
+    @app.middleware("http")
+    async def csp_middleware(request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; font-src 'self'; connect-src 'self'; "
+            "form-action 'self'; base-uri 'self'; frame-ancestors 'none';"
+        )
+        return response
+
     # Rate limiting
     if cfg.server.rate_limit_per_minute > 0:
         _rate_requests: dict[str, list[float]] = defaultdict(list)

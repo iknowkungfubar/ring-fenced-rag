@@ -32,6 +32,13 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
+# To enable HTTPS, set RFR_SERVER__SSL_CERTFILE and RFR_SERVER__SSL_KEYFILE
+# environment variables pointing to PEM-encoded certificate and key files.
+# Example:
+#   docker run -e RFR_SERVER__SSL_CERTFILE=/certs/cert.pem \
+#              -e RFR_SERVER__SSL_KEYFILE=/certs/key.pem \
+#              -v /host/certs:/certs:ro ...
+
 HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
     CMD curl -sf http://localhost:8000/api/v1/health || exit 1
 
