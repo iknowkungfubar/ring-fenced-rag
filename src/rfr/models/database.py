@@ -19,27 +19,29 @@ from rfr.models.orm import Base
 # MUST be checked against this set before being interpolated into
 # a query.  This prevents SQL injection via dynamic column names
 # even when using parameterised values for data.
-_ALLOWED_COLUMN_NAMES: frozenset[str] = frozenset({
-    "id",
-    "content",
-    "embedding",
-    "source",
-    "doc_id",
-    "chunk_index",
-    "created_at",
-    "updated_at",
-    "key_hash",
-    "key_prefix",
-    "name",
-    "role",
-    "is_active",
-    "last_used_at",
-    "status",
-    "error_message",
-    "started_at",
-    "completed_at",
-    "result",
-})
+_ALLOWED_COLUMN_NAMES: frozenset[str] = frozenset(
+    {
+        "id",
+        "content",
+        "embedding",
+        "source",
+        "doc_id",
+        "chunk_index",
+        "created_at",
+        "updated_at",
+        "key_hash",
+        "key_prefix",
+        "name",
+        "role",
+        "is_active",
+        "last_used_at",
+        "status",
+        "error_message",
+        "started_at",
+        "completed_at",
+        "result",
+    }
+)
 
 
 def validate_column_name(name: str) -> str:
@@ -56,6 +58,7 @@ def validate_column_name(name: str) -> str:
 
     Raises:
         ValueError: If *name* is not in the allowlist.
+
     """
     if name not in _ALLOWED_COLUMN_NAMES:
         msg = (

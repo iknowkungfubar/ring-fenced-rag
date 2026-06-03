@@ -17,7 +17,7 @@ class TestGetChatModel:
     """Verify get_chat_model returns a usable model object."""
 
     @pytest.fixture
-    def any_provider(self) -> list:  # noqa: ANN201
+    def any_provider(self) -> list:
         """Return all provider instances for parameterized tests."""
         return [
             vLLMProvider(),

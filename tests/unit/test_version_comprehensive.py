@@ -5,7 +5,7 @@ from __future__ import annotations
 import subprocess
 from unittest.mock import patch
 
-from rfr.__about__ import __git_commit__, __title__, __version__, _STATIC_VERSION, version_info
+from rfr.__about__ import _STATIC_VERSION, __git_commit__, __title__, __version__, version_info
 
 
 class TestVersionInfo:

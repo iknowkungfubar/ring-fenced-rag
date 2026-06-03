@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
-import pytest
-
 from rfr.api.pipeline import (
     RAGExecutionError,
     create_rag_chain,

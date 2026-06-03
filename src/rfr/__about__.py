@@ -25,6 +25,7 @@ def _get_git_version() -> str | None:
         Version string like '1.0.0a1' or '1.0.0a1-3-gdeadbeef'
         (with commit count and hash when not exactly on a tag),
         or None if git is not available or not a git repo.
+
     """
     try:
         repo_root = Path(__file__).resolve().parent.parent.parent
@@ -37,8 +38,7 @@ def _get_git_version() -> str | None:
         if result.returncode == 0:
             version = result.stdout.strip()
             # Strip leading 'v' if present (e.g. v1.0.0 → 1.0.0)
-            if version.startswith("v"):
-                version = version[1:]
+            version = version.removeprefix("v")
             return version
     except (subprocess.SubprocessError, FileNotFoundError):
         pass
@@ -54,6 +54,7 @@ def _get_version() -> str:
 
     Returns:
         Version string.
+
     """
     git_version = _get_git_version()
     if git_version:
@@ -66,6 +67,7 @@ def _get_git_commit() -> str:
 
     Returns:
         7-char commit hash, or 'unknown' if git is unavailable.
+
     """
     try:
         repo_root = Path(__file__).resolve().parent.parent.parent
@@ -91,6 +93,7 @@ def version_info() -> dict[str, str]:
 
     Returns:
         Dict with keys: version, git_commit, python, platform, title.
+
     """
     return {
         "title": __title__,

@@ -46,7 +46,7 @@ def _get_api_key() -> str | None:
         try:
             data = tomllib.loads(config_path.read_text())
             return data.get("api_key")
-        except Exception:  # noqa: BLE001
+        except (tomllib.TOMLDecodeError, OSError, ValueError):
             pass
     return None
 
@@ -98,7 +98,7 @@ class RfrClient:
             )
         return self._client
 
-    def _request(self, method: str, path: str, **kwargs: Any) -> Response:  # noqa: ANN401
+    def _request(self, method: str, path: str, **kwargs: Any) -> Response:
         """Make an HTTP request and handle errors.
 
         Args:
@@ -119,7 +119,7 @@ class RfrClient:
                 detail = response.text
                 try:
                     detail = response.json().get("error", {}).get("message", detail)
-                except Exception:  # noqa: BLE001
+                except (ValueError, TypeError):
                     pass
                 raise RfrClientError(
                     f"API error ({response.status_code}): {detail}",

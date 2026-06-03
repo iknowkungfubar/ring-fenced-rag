@@ -44,6 +44,7 @@ def _validate_content_magic(filepath: Path) -> None:
     Raises:
         ValueError: If the file content does not match the expected
                     magic bytes for its extension.
+
     """
     ext = filepath.suffix.lower()
     if ext not in _MAGIC_SIGNATURES:
