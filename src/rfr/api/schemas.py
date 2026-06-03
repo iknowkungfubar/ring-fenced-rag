@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class HealthResponse(BaseModel):
@@ -194,6 +194,18 @@ class CreateKeyRequest(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=255)
     role: str = Field(default="user", max_length=100)
+
+    @field_validator("role")
+    @classmethod
+    def _validate_role(cls, v: str) -> str:
+        """Ensure role is a reasonable value (alphanumeric, underscores, hyphens only)."""
+        import re
+
+        if not re.match(r"^[a-zA-Z0-9_-]+$", v):
+            raise ValueError(
+                f"Invalid role '{v}': roles must contain only letters, numbers, underscores, and hyphens."
+            )
+        return v
 
 
 class CreateKeyResponse(BaseModel):

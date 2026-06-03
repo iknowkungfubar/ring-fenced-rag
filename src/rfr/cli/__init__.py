@@ -94,8 +94,11 @@ def init(force: bool) -> None:
 
 
 def _write_default_compose(path: Path) -> None:
-    """Write the default docker-compose.yml."""
-    content = """services:
+    """Write the default docker-compose.yml with security warnings."""
+    content = """# 🔴 SECURITY: Local development only.
+# In production, set POSTGRES_PASSWORD via environment variable.
+# NEVER commit real credentials here.
+services:
   vector-db:
     image: pgvector/pgvector:0.8.0-pg17
     container_name: rfr-vector-db
@@ -104,6 +107,7 @@ def _write_default_compose(path: Path) -> None:
       - "5432:5432"
     environment:
       POSTGRES_USER: admin
+      # ⚠ Change this password before any non-local use
       POSTGRES_PASSWORD: secure_password
       POSTGRES_DB: rag_internal
     volumes:
