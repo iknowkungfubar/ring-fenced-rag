@@ -127,7 +127,7 @@ embedding_test = pytest.mark.slow
 class TestEmbeddingProperties:
     """Property-based tests for embedding behavior (slow — ML model load)."""
 
-    @settings(max_examples=10)
+    @settings(max_examples=10, deadline=None)
     @given(text=st.text(min_size=1, max_size=100))
     def test_embedding_always_returns_vector(self, text: str) -> None:
         """Any non-empty text should produce a vector."""
@@ -139,7 +139,7 @@ class TestEmbeddingProperties:
         assert len(vector) > 0
         assert all(isinstance(v, float) for v in vector)
 
-    @settings(max_examples=5)
+    @settings(max_examples=5, deadline=None)
     @given(text=st.text(max_size=0))
     def test_empty_text_returns_vector(self, text: str) -> None:
         """Even empty text should produce a vector (model encodes it)."""
@@ -150,7 +150,7 @@ class TestEmbeddingProperties:
         assert isinstance(vector, list)
         assert len(vector) == emb.dimension
 
-    @settings(max_examples=10)
+    @settings(max_examples=10, deadline=None)
     @given(text=st.text(min_size=1, max_size=100))
     def test_same_text_same_vector_property(self, text: str) -> None:
         """The same text should always produce the same vector (deterministic)."""

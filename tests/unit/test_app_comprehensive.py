@@ -37,13 +37,13 @@ class TestAppFactory:
         assert response.status_code in (401, 403, 500)
 
     def test_cors_middleware(self) -> None:
-        """CORS headers should be set."""
+        """CORS headers should be set for allowed origins."""
         app = create_app()
         client = TestClient(app)
         response = client.options(
             "/api/v1/health",
             headers={
-                "Origin": "http://example.com",
+                "Origin": "http://localhost:5173",
                 "Access-Control-Request-Method": "GET",
             },
         )

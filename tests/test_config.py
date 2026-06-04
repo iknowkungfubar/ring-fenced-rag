@@ -18,7 +18,8 @@ class TestAppConfig:
         assert cfg.embedding.model == "all-MiniLM-L6-v2"
         assert cfg.embedding.dimension == 384
         assert cfg.ingestion.chunk_size == 512
-        assert cfg.database.url.startswith("postgresql")
+        # In standalone mode the DB URL is empty — must be set via RFR_DB__URL
+        assert cfg.database.url == "", "DB URL must be set explicitly in production"
         assert cfg.server.port == 8000
 
     def test_env_override(self, monkeypatch: pytest.MonkeyPatch) -> None:

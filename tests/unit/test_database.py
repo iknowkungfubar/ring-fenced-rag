@@ -23,7 +23,7 @@ class TestDatabaseEngine:
 
     def test_get_engine_default_creates_pg_engine(self) -> None:
         """Default engine should be created with PostgreSQL URL."""
-        engine = get_engine()
+        engine = get_engine("postgresql+psycopg://localhost/test")
         assert engine is not None
         assert "postgresql" in str(engine.url)
 
@@ -43,6 +43,8 @@ class TestDatabaseEngine:
 
     def test_get_session_factory(self) -> None:
         """Session factory should return a sessionmaker."""
+        reset_engine()
+        init_db("sqlite://")
         factory = get_session_factory()
         assert factory is not None
 
