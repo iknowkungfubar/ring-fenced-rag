@@ -322,11 +322,11 @@ class AppConfig(BaseSettings):
             )
         return self
 
-    def save(self, path: Path | None = None) -> None:
+    def save(self, path: str | Path | None = None) -> None:
         """Save the current config to a TOML file."""
         import tomli_w
 
-        save_path = path or _default_config_path()
+        save_path = Path(path) if path else _default_config_path()
         save_path.parent.mkdir(parents=True, exist_ok=True)
         data = self.model_dump(mode="python")
         with save_path.open("wb") as f:
