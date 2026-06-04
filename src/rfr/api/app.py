@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -23,7 +24,7 @@ from rfr.config import AppConfig
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Application lifespan: startup and shutdown hooks."""
     import logging
 
@@ -171,4 +172,5 @@ def create_app() -> FastAPI:
                 },
             },
         )
+
     return app
