@@ -7,6 +7,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/ring-fenced-rag)](https://pypi.org/project/ring-fenced-rag/)
 
+> **⚠️ Alpha Release** — This is v1.0.0a1. The API and CLI are stable under active development. Breaking changes are possible before v1.0.0.
+
 ## What is Ring-Fenced RAG?
 
 Ring-Fenced RAG (RFR) is a self-hosted document Q&A system where **access control is enforced at the database level** — not the application layer. Every document chunk is tagged with role metadata at ingestion time. When a user queries the system, the vector database **mathematically refuses** to return chunks the user isn't authorized to see.
@@ -79,7 +81,7 @@ rfr query "How do I restart the Nginx server?"
 
 ## CLI Reference
 
-All 13 CLI commands at a glance:
+All CLI commands at a glance:
 
 | Command | Description |
 |---------|-------------|
@@ -88,6 +90,8 @@ All 13 CLI commands at a glance:
 | `rfr down` | Stop Docker services |
 | `rfr status` | Show component health |
 | `rfr version` | Show version, git commit, platform |
+| `rfr --version` | Show version (short) |
+| `rfr standalone` | Run in standalone mode (SQLite, no Docker) |
 | `rfr config show` | Print current config |
 | `rfr config set <k> <v>` | Update config value |
 | `rfr ingest <path>` | Ingest documents from file/directory |
