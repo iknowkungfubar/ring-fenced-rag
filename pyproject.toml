@@ -193,6 +193,10 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 asyncio_mode = "auto"
 addopts = "-q --tb=short --cov=src/rfr --cov-report=term-missing --cov-fail-under=60"
+markers = [
+    "e2e: marks tests as end-to-end integration tests (skipped unless RUN_E2E=true)",
+    "slow: marks tests as slow-running (embedding/model inference tests)",
+]
 filterwarnings = [
     "ignore::DeprecationWarning:langchain.*:",
     "ignore::DeprecationWarning:sentence_transformers.*:",

@@ -218,8 +218,8 @@ class ServerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="rfr_server_")
 
     host: str = Field(
-        default="0.0.0.0",
-        description="Server bind address",
+        default="127.0.0.1",
+        description="Server bind address. Use 0.0.0.0 to expose to all interfaces",
     )
     port: int = Field(
         default=8000,
