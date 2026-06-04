@@ -157,6 +157,10 @@ uv run ruff check src/ tests/
 uv pip install textual
 ```
 
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on our development process, coding standards, PR workflow, and code of conduct.
+
 ## License
 
 MIT
