@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,6 +20,39 @@ from fastapi.responses import JSONResponse
 from rfr import __version__
 from rfr.api.routes import router
 from rfr.config import AppConfig
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan: startup and shutdown hooks."""
+    import logging
+
+    cfg = AppConfig()
+    logger = logging.getLogger(__name__)
+
+    logger.info("Ring-Fenced RAG v%s starting...", __version__)
+
+    # 🟢 Auth status check
+    if not cfg.auth.enabled:
+        logger.warning(
+            "🔴 AUTH IS DISABLED! Set RFR_AUTH__ENABLED=true in production. "
+            "Without authentication, any user can access all endpoints."
+        )
+    else:
+        logger.info("✅ Authentication enabled")
+
+    # Initialize database
+    try:
+        from rfr.models.database import init_db
+
+        init_db()
+        logger.info("Database initialized")
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Database initialization skipped (will retry): %s", e)
+
+    yield
+
+    logger.info("Ring-Fenced RAG shutting down...")
 
 
 def create_app() -> FastAPI:
@@ -44,6 +78,7 @@ def create_app() -> FastAPI:
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT",
         },
+        lifespan=lifespan,
     )
 
     # CORS
@@ -136,39 +171,4 @@ def create_app() -> FastAPI:
                 },
             },
         )
-
-    # Startup event
-    @app.on_event("startup")
-    async def startup() -> None:
-        import logging
-
-        logger = logging.getLogger(__name__)
-        logger.info("Ring-Fenced RAG v%s starting...", __version__)
-
-        # 🟢 Auth status check
-        if not cfg.auth.enabled:
-            logger.warning(
-                "🔴 AUTH IS DISABLED! Set RFR_AUTH__ENABLED=true in production. "
-                "Without authentication, any user can access all endpoints."
-            )
-        else:
-            logger.info("✅ Authentication enabled")
-
-        # Initialize database
-        try:
-            from rfr.models.database import init_db
-
-            init_db()
-            logger.info("Database initialized")
-        except Exception as e:  # noqa: BLE001
-            logger.warning("Database initialization skipped (will retry): %s", e)
-
-    # Shutdown event
-    @app.on_event("shutdown")
-    async def shutdown() -> None:
-        import logging
-
-        logger = logging.getLogger(__name__)
-        logger.info("Ring-Fenced RAG shutting down...")
-
     return app
