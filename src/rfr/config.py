@@ -324,29 +324,13 @@ class AppConfig(BaseSettings):
 
     def save(self, path: Path | None = None) -> None:
         """Save the current config to a TOML file."""
-        import tomllib  # noqa: F401
+        import tomli_w
 
         save_path = path or _default_config_path()
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        # Use model_dump to serialize and write as TOML
         data = self.model_dump(mode="python")
-        lines = ["# Ring-Fenced RAG Configuration\n"]
-        for section, values in data.items():
-            if isinstance(values, dict):
-                lines.append(f"\n[{section}]")
-                for k, v in values.items():
-                    if isinstance(v, list):
-                        v_str = ", ".join(repr(x) for x in v)
-                        lines.append(f"{k} = [{v_str}]")
-                    elif isinstance(v, str):
-                        lines.append(f'{k} = "{v}"')
-                    else:
-                        lines.append(f"{k} = {v}")
-            elif isinstance(v, str):
-                lines.append(f'{section} = "{v}"')
-            else:
-                lines.append(f"{section} = {v}")
-        save_path.write_text("\n".join(lines) + "\n")
+        with save_path.open("wb") as f:
+            tomli_w.dump(data, f)
 
 
 def load_config(path: str | Path | None = None) -> AppConfig:

@@ -43,7 +43,7 @@ def hash_api_key(raw_key: str) -> str:
         SHA-256 hex digest of the key.
 
     """
-    return hashlib.blake2b(raw_key.encode()).hexdigest()
+    return hashlib.sha256(raw_key.encode()).hexdigest()
 
 
 def verify_key(raw_key: str, stored_hash: str) -> bool:
