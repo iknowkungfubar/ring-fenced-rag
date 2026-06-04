@@ -1,7 +1,6 @@
 # Optimization Report: ring-fenced-rag
 
 ## Changes Made
-## Changes Made
 | File | Change | Before Metric | After Metric | Delta |
 |------|--------|---------------|--------------|-------|
 | `src/rfr/cli/tui_app.py` | Stub → functional TUI | 1-line placeholder | 196-line query+status UI | **+196x** |
