@@ -44,7 +44,7 @@ dependencies = [
     "sqlalchemy>=2.0,<3",
     "alembic>=1.14,<2",
     "unstructured>=0.16,<1",
-    "python-multipart>=0.0.30",
+    "python-multipart>=0.0.31",
     "anyio>=4.8,<5",
     # 🔒 langchain-classic provides SQLRecordManager for idempotent ingestion
     "langchain-classic>=1.0,<2",
