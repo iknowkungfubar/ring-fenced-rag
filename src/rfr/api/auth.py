@@ -3,6 +3,7 @@
 Uses BLAKE2b (via hashlib) for key hashing and constant-time HMAC comparison.
 Keys are formatted as: rfr_<32-hex-chars>
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -117,30 +118,42 @@ async def get_current_role(
 
     key_hash = hash_api_key(token)
 
-    # Short-circuit: if key starts with known prefix, look it up
-    prefix = token[:10]
-    role = await _lookup_key_hash(key_hash, prefix)
+    from rfr.models.database import create_session
+    from rfr.models.orm import ApiKey
 
-    if role is None:
-        raise HTTPException(
-            status_code=http_status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key",
+    with create_session() as session:
+        key_record = (
+            session.query(ApiKey)
+            .filter(ApiKey.key_hash == key_hash, ApiKey.is_active.is_(True))
+            .first()
         )
+        if key_record is None:
+            raise HTTPException(
+                status_code=http_status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or deactivated API key",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        # Update last_used_at
+        from datetime import UTC, datetime
 
-    return role
+        key_record.last_used_at = datetime.now(UTC)
+        session.commit()
+
+        return key_record.role
 
 
-async def _lookup_key_hash(key_hash: str, prefix: str) -> str | None:
-    """Look up a key hash in the database and return the associated role.
+async def require_admin_role(
+    request: Request,
+) -> str:
+    """Require the caller to have an admin role.
 
-    Args:
-        key_hash: The BLAKE2b hash of the API key.
-        prefix: The key prefix for index-assisted lookup.
-
-    Returns:
-        The role string, or None if not found.
-
+    Same as get_current_role, but raises 403 if the role is not in the admin list.
     """
-    # TODO: Implement database lookup
-    # For v1, this is a simplified implementation.
-    return None
+    role = await get_current_role(request)
+    cfg = AppConfig()
+    if role not in cfg.auth.admin_roles:
+        raise HTTPException(
+            status_code=http_status.HTTP_403_FORBIDDEN,
+            detail=f"Admin role required. Current role: {role}",
+        )
+    return role
