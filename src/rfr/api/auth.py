@@ -27,7 +27,7 @@ def generate_api_key() -> tuple[str, str, str]:
 
     """
     raw = "rfr_" + secrets.token_hex(32)
-    key_hash = hashlib.blake2b(raw.encode(), digest_size=32).hexdigest()
+    key_hash = hashlib.pbkdf2_hmac("sha256", raw.encode(), b"rfr_salt", 600_000).hex()
     key_prefix = raw[:10]
     return raw, key_hash, key_prefix
 
@@ -35,7 +35,7 @@ def generate_api_key() -> tuple[str, str, str]:
 def hash_api_key(raw_key: str) -> str:
     """Hash an API key for storage/comparison.
 
-    Uses BLAKE2b (256-bit digest) — the standard choice for API key hashing
+    Uses PBKDF2-HMAC-SHA256 (600k iterations) — the standard choice for API key hashing
     (GitHub, GitLab, and others use similar keyed-hash constructions for
     their API tokens).
 
@@ -43,10 +43,10 @@ def hash_api_key(raw_key: str) -> str:
         raw_key: The full API key string.
 
     Returns:
-        BLAKE2b hex digest of the key.
+        PBKDF2-HMAC-SHA256 hex digest of the key.
 
     """
-    return hashlib.blake2b(raw_key.encode(), digest_size=32).hexdigest()
+    return hashlib.pbkdf2_hmac("sha256", raw_key.encode(), b"rfr_salt", 600_000).hex()
 
 
 def verify_key(raw_key: str, stored_hash: str) -> bool:
