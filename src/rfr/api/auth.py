@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import secrets
+
 from fastapi import HTTPException, Request
 from fastapi import status as http_status
 
