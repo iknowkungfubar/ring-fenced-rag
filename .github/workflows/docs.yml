@@ -1,7 +1,6 @@
 name: Deploy Docs (disabled — enable Pages in repo settings)
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
   pages: write
