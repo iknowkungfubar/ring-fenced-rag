@@ -13,6 +13,7 @@ import time
 from collections import defaultdict
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -155,9 +156,10 @@ def create_app() -> FastAPI:
 
     # Serve built frontend (if dist/ exists)
     import os as _os
+
     from fastapi.staticfiles import StaticFiles
 
-    _web_dist = _os.path.join(_os.path.dirname(__file__), "..", "..", "web", "dist")
+    _web_dist = str(Path(__file__).parent.parent.parent / "web" / "dist")
     if _os.path.isdir(_web_dist):
         app.mount("/", StaticFiles(directory=_web_dist, html=True), name="web")
 
