@@ -4,35 +4,29 @@
 
 | Version | Supported |
 |---------|-----------|
-| 1.0.x   | ✅ Yes |
+| latest  | ✅ |
+| < latest| ❌ |
 
 ## Reporting a Vulnerability
 
-Ring-Fenced RAG takes security seriously. If you discover a security vulnerability, please report it via **GitHub's private vulnerability reporting**:
+We take security seriously. If you discover a security vulnerability, please **do not** open a public issue.
 
-1. Go to https://github.com/iknowkungfubar/ring-fenced-rag/security/advisories
-2. Click "New draft security advisory"
-3. Provide a clear description, reproduction steps, and impact assessment
+Instead, send a description of the issue to **turin@turintechsolutions.com** with:
+- A brief description of the vulnerability
+- Steps to reproduce
+- Affected versions
+- Any potential mitigations you've identified
 
-Alternatively, email: turin.ortherion@gmail.com
+You should receive a response within 48 hours. If the issue is confirmed, we will:
+1. Acknowledge receipt of the report
+2. Investigate and develop a fix
+3. Release a patched version
+4. Disclose the vulnerability after the fix is released
 
-**Please do NOT report security vulnerabilities via public GitHub issues.**
+## Scope
 
-### Expected Response Times
-- **Initial acknowledgment**: Within 48 hours
-- **Triage / validation**: Within 5 business days
-- **Fix timeline**: Dependent on severity (critical: 7 days, high: 14 days, medium: 30 days)
+This security policy covers the latest release of this project. Older versions may have known vulnerabilities that are fixed in newer releases.
 
-## Security Design Principles
+## Bug Bounty
 
-Ring-Fenced RAG's architecture enforces security at the infrastructure level:
-
-1. **Zero-trust retrieval**: Role-based access control is enforced via PostgreSQL JSONB `@>` containment operator at query time — not in application code. An attacker who bypasses the API still cannot retrieve unauthorized documents from the database directly.
-2. **Zero egress by default**: All inference, embedding, and storage runs locally. No data reaches an external API unless the operator explicitly configures an external LLM.
-3. **Idempotent ingestion**: LangChain SQLRecordManager tracks content hashes, preventing duplicate vectors and ensuring document updates propagate correctly.
-4. **Redacted telemetry**: Trace redaction is enabled by default. Full traces expire after 7 days.
-5. **API key authentication**: SHA-256 hashed keys with constant-time comparison. Keys map to roles, not users.
-
-## Hall of Fame
-
-We appreciate responsible disclosure. Contributors who report valid security vulnerabilities will be acknowledged here (with permission).
+At this time, there is no bug bounty program. We appreciate responsible disclosure in the interest of keeping the community safe.
