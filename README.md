@@ -62,9 +62,21 @@ This creates:
 # Production mode (Docker — recommended)
 rfr up
 
-# Standalone mode (no Docker)
+# Standalone mode (no Docker)  
 rfr standalone
 ```
+
+### Access the Web UI
+
+Once the stack is running, open **[http://localhost:8080](http://localhost:8080)** in your browser.
+
+The Web UI provides:
+- **Dashboard** — Ask questions against your documents
+- **Documents** — Browse and manage indexed documents
+- **Ingest** — Upload documents with role metadata
+- **Settings** — Manage API keys and view system health
+
+> The Web UI is a React + TypeScript SPA served by the FastAPI backend. To develop it locally: `cd src/rfr/web && npm install && npm run dev` (runs on port 5173 with API proxy).
 
 ### Ingest Documents
 

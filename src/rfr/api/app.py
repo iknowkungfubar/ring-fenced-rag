@@ -153,6 +153,14 @@ def create_app() -> FastAPI:
     # Register routers
     app.include_router(router)
 
+    # Serve built frontend (if dist/ exists)
+    import os as _os
+    from fastapi.staticfiles import StaticFiles
+
+    _web_dist = _os.path.join(_os.path.dirname(__file__), "..", "..", "web", "dist")
+    if _os.path.isdir(_web_dist):
+        app.mount("/", StaticFiles(directory=_web_dist, html=True), name="web")
+
     # Global exception handler
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:

@@ -35,6 +35,34 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rfr-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      RFR_DB__URL: postgresql://admin:secure_password@vector-db:5432/rag_internal
+      RFR_REDIS__URL: redis://redis:6379/0
+    depends_on:
+      vector-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  web:
+    build:
+      context: src/rfr/web
+      dockerfile: Dockerfile
+    container_name: rfr-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
 volumes:
   pgvector_data:
   redis_data:
