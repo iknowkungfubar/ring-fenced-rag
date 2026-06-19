@@ -44,3 +44,6 @@ site/
 
 # Hermes agent artifacts
 .hermes/
+
+# Audit artifacts
+OPTIMIZATION_REPORT.md
