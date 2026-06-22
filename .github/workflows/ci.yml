@@ -75,7 +75,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
       - name: Run tests with coverage
-        run: uv run pytest tests/ -q --tb=short --cov=src/rfr --cov-report=term-missing --cov-fail-under=60
+        run: uv run pytest tests/ -q --tb=short --cov=src/rfr --cov-report=term-missing --cov-fail-under=60 -m "not slow and not needs_docker"
       - name: Upload coverage to GitHub
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:

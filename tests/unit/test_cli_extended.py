@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from unittest.mock import patch
 
+import pytest
 from click.testing import CliRunner
 
 from rfr.api.schemas import (
@@ -194,6 +195,7 @@ class TestCliExtended:
         # Without docker-compose.yml, shows a message but exits 0
         assert "docker-compose" in result.output or result.exit_code == 0
 
+    @pytest.mark.needs_docker
     def test_logs_command(self) -> None:
         """logs command should be invocable."""
         result = self.runner.invoke(cli, ["logs"])

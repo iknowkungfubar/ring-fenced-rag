@@ -17,8 +17,11 @@ class TestCliEdgeCases:
 
     def test_standalone_short_flag(self) -> None:
         """standalone --port flag should be accepted."""
-        result = self.runner.invoke(cli, ["standalone", "--port", "9000"])
-        assert "9000" in result.output or result.exit_code in (0, 1)
+        with patch("uvicorn.run") as mock_run:
+            mock_run.side_effect = SystemExit(0)
+            result = self.runner.invoke(cli, ["standalone", "--port", "9000"])
+        assert result.exit_code in (0, 1)
+        assert "9000" in result.output
 
     def test_keys_create_invalid_role(self) -> None:
         """keys create with invalid args should show error."""
@@ -73,7 +76,7 @@ class TestCliEdgeCases:
 
     def test_tui_command_no_textual(self) -> None:
         """tui command should error gracefully without Textual."""
-        with patch("rfr.cli.tui_app.RFRTuiApp", side_effect=ImportError("No Textual")):
-            result = self.runner.invoke(cli, ["tui"])
-            # Should show install message
-            assert result.exit_code != 0 or "TUI" in result.output
+        result = self.runner.invoke(cli, ["tui"])
+        # Without Textual installed, the command should print install message
+        assert result.exit_code != 0
+        assert "TUI" in result.output
