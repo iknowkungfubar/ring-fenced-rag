@@ -13,10 +13,12 @@ No legacy RetrievalQA or ConversationalRetrievalChain wrappers.
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any
 
+from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
@@ -31,6 +33,137 @@ class RAGExecutionError(Exception):
     """Raised when the RAG pipeline encounters a fatal error."""
 
 
+def _create_embedding_function() -> Any:  # type: ignore[explicit-any]
+    """Create a HuggingFace sentence-transformers embedding function from config.
+
+    Returns:
+        A LangChain Embeddings instance.
+
+    """
+    from langchain_community.embeddings import HuggingFaceEmbeddings
+
+    cfg = AppConfig().embedding
+    logger.info("Creating embedding function: model=%s device=%s", cfg.model, cfg.device)
+    return HuggingFaceEmbeddings(
+        model_name=cfg.model,
+        model_kwargs={"device": cfg.device},
+    )
+
+
+def _create_vector_store() -> Any:  # type: ignore[explicit-any]
+    """Create a PGVector vector store from the app configuration.
+
+    Uses ``langchain_postgres.vectorstores.PGVector`` which creates proper
+    pgvector-native tables (``langchain_pg_embedding`` / ``langchain_pg_collection``)
+    with the native ``vector`` column type for efficient HNSW-indexed similarity search.
+
+    Returns:
+        A ``PGVector`` instance connected to the configured database.
+
+    """
+    from langchain_postgres.vectorstores import PGVector
+
+    cfg = AppConfig()
+    embeddings = _create_embedding_function()
+    logger.info(
+        "Creating PGVector store: collection=document_chunks db=%s",
+        cfg.database.url.split("@")[-1] if "@" in cfg.database.url else cfg.database.url,
+    )
+    return PGVector(
+        embeddings=embeddings,
+        connection=cfg.database.sync_url,
+        collection_name="document_chunks",
+        use_jsonb=True,
+    )
+
+
+def _create_role_filtered_retriever(
+    vector_store: Any,  # type: ignore[explicit-any]
+    user_role: str,
+    top_k: int,
+) -> Any:  # type: ignore[explicit-any]
+    """Create a retriever that enforces role-based access at the database level.
+
+    Uses the PostgreSQL JSONB ``@>`` containment operator via SQLAlchemy's
+    ``.contains()`` method to filter documents where the ``allowed_roles``
+    array includes the user's role.  This is a **database-level** filter — the
+    ring-fence cannot be bypassed from the application layer.
+
+    Args:
+        vector_store: A ``PGVector`` instance (from ``langchain_postgres``).
+        user_role: The role to filter by.
+        top_k: Number of documents to retrieve.
+
+    Returns:
+        A callable that takes a query string and returns ``list[Document]``.
+
+    """
+    from sqlalchemy import func, select
+
+    EmbeddingStore = vector_store.EmbeddingStore
+    # ``distance_strategy`` is a ``@property`` that returns a bound method
+    # such as ``EmbeddingStore.embedding.cosine_distance`` which is then
+    # called with the query embedding vector.
+    distance_fn = vector_store.distance_strategy
+
+    def retrieve(query: str) -> list[Document]:
+        """Embed the query and run a secure pgvector similarity search."""
+        try:
+            query_embedding = vector_store.embedding_function.embed_query(query)
+        except Exception:
+            logger.exception("Failed to embed query")
+            return []
+
+        with vector_store._make_sync_session() as session:
+            collection = vector_store.get_collection(session)
+            if collection is None:
+                logger.warning(
+                    "PGVector collection '%s' not found — is the DB initialized?",
+                    vector_store.collection_name,
+                )
+                return []
+
+            # JSONB containment:
+            #   ``cmetadata @> '{"allowed_roles": ["<role>"]}'::jsonb``
+            # Only chunks whose ``allowed_roles`` array contains the
+            # user's role will be returned.
+            role_filter = {"allowed_roles": [user_role]}
+
+            stmt = (
+                select(
+                    EmbeddingStore,
+                    distance_fn(query_embedding).label("distance"),
+                )
+                .filter(
+                    EmbeddingStore.collection_id == collection.uuid,
+                    EmbeddingStore.cmetadata.contains(role_filter),
+                )
+                .order_by(func.asc("distance"))
+                .limit(top_k)
+            )
+
+            try:
+                results = session.execute(stmt).all()
+            except Exception:
+                logger.exception("Vector similarity query failed")
+                return []
+
+            docs: list[Document] = []
+            for row in results:
+                es = row.EmbeddingStore
+                metadata = dict(es.cmetadata) if es.cmetadata else {}
+                metadata["relevance_score"] = 1.0 - float(row.distance)
+                docs.append(
+                    Document(
+                        page_content=es.document,
+                        metadata=metadata,
+                    )
+                )
+            return docs
+
+    return retrieve
+
+
 def create_secure_retriever(
     user_role: str,
     top_k: int = 3,
@@ -38,29 +171,43 @@ def create_secure_retriever(
 ) -> Any:  # type: ignore[explicit-any]
     """Create a secure retriever that filters by user role.
 
-    The ring-fence is enforced here: the vector store's metadata filter
-    ensures only documents whose 'allowed_roles' includes the user's role
-    are returned. This is a database-level filter, not an application-level one.
+    The ring-fence is enforced at the **database level**: the pgvector
+    similarity query includes a JSONB ``@>`` containment filter so that
+    only chunks whose ``allowed_roles`` array includes the user's role
+    are considered.
+
+    Resolution order:
+    1. If *vector_store* is provided → wrap it with role filtering.
+    2. If a real database is configured → create a ``PGVector`` store.
+    3. Otherwise → return a mock retriever for standalone / dev mode.
 
     Args:
         user_role: The role to filter by.
         top_k: Number of documents to retrieve.
-        vector_store: A LangChain VectorStore instance. If None, uses a mock.
+        vector_store: A LangChain ``VectorStore`` instance. If ``None``, one
+            is created from the app config (or a mock is used).
 
     Returns:
-        A callable that takes a query string and returns list of Documents.
+        A callable that takes a query string and returns ``list[Document]``.
 
     """
-    if vector_store is None:
-        # Return a mock retriever for standalone/dev mode
-        return _create_mock_retriever(user_role, top_k)
+    if vector_store is not None:
+        return _create_role_filtered_retriever(vector_store, user_role, top_k)
 
-    return vector_store.as_retriever(
-        search_kwargs={
-            "k": top_k,
-            "filter": {"allowed_roles": {"$in": [user_role]}},
-        },
-    )
+    # No explicit store — try to create one from config
+    try:
+        cfg = AppConfig()
+        if cfg.standalone or not cfg.database.url or "sqlite" in cfg.database.url.lower():
+            logger.info(
+                "Standalone mode or no pgvector DB configured — using mock retriever"
+            )
+            return _create_mock_retriever(user_role, top_k)
+
+        store = _create_vector_store()
+        return _create_role_filtered_retriever(store, user_role, top_k)
+    except Exception:
+        logger.exception("Failed to create real vector store — falling back to mock")
+        return _create_mock_retriever(user_role, top_k)
 
 
 def _create_mock_retriever(user_role: str, top_k: int = 3) -> Any:  # type: ignore[explicit-any]
