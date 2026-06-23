@@ -4,7 +4,7 @@ FROM python:3.13-slim AS builder
 WORKDIR /build
 
 # Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /bin/uv
 
 # Install dependencies
 COPY pyproject.toml uv.lock ./
@@ -20,6 +20,9 @@ FROM python:3.13-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
+
+RUN addgroup --system rfr && adduser --system --ingroup rfr rfr
+USER rfr
 
 WORKDIR /app
 
