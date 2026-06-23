@@ -17,7 +17,17 @@ class TestAppFactory:
     def test_app_has_routes(self) -> None:
         """The app should have registered routes."""
         app = create_app()
-        routes = [r.path for r in app.routes]
+        # Some routes are _IncludedRouter objects without direct .path attr
+        routes: list[str] = []
+        for r in app.routes:
+            path = getattr(r, "path", None)
+            if path:
+                routes.append(path)
+            elif hasattr(r, "routes"):  # pyright: ignore[reportAttributeAccessIssue]
+                sub = getattr(r, "routes", [])
+                routes.extend(
+                    getattr(sr, "path", "") for sr in sub if hasattr(sr, "path")
+                )
         assert "/api/v1/health" in routes
         assert "/api/v1/query" in routes
         assert "/api/v1/ingest" in routes
