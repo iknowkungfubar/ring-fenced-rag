@@ -100,7 +100,7 @@ def _create_role_filtered_retriever(
     """
     from sqlalchemy import func, select
 
-    EmbeddingStore = vector_store.EmbeddingStore
+    EmbeddingStore = vector_store.EmbeddingStore  # noqa: N806 - class reference kept for clarity
     # ``distance_strategy`` is a ``@property`` that returns a bound method
     # such as ``EmbeddingStore.embedding.cosine_distance`` which is then
     # called with the query embedding vector.
@@ -198,9 +198,7 @@ def create_secure_retriever(
     try:
         cfg = AppConfig()
         if cfg.standalone or not cfg.database.url or "sqlite" in cfg.database.url.lower():
-            logger.info(
-                "Standalone mode or no pgvector DB configured — using mock retriever"
-            )
+            logger.info("Standalone mode or no pgvector DB configured — using mock retriever")
             return _create_mock_retriever(user_role, top_k)
 
         store = _create_vector_store()
