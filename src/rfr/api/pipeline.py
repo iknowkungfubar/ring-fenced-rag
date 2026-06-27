@@ -198,9 +198,7 @@ def create_secure_retriever(
     try:
         cfg = AppConfig()
         if cfg.standalone or not cfg.database.url or "sqlite" in cfg.database.url.lower():
-            logger.info(
-                "Standalone mode or no pgvector DB configured — using mock retriever"
-            )
+            logger.info("Standalone mode or no pgvector DB configured — using mock retriever")
             return _create_mock_retriever(user_role, top_k)
 
         store = _create_vector_store()
