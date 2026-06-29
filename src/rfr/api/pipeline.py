@@ -100,9 +100,9 @@ def _create_role_filtered_retriever(
     """
     from sqlalchemy import func, select
 
-    EmbeddingStore = vector_store.EmbeddingStore
+    embedding_store = vector_store.EmbeddingStore
     # ``distance_strategy`` is a ``@property`` that returns a bound method
-    # such as ``EmbeddingStore.embedding.cosine_distance`` which is then
+    # such as ``embedding_store.embedding.cosine_distance`` which is then
     # called with the query embedding vector.
     distance_fn = vector_store.distance_strategy
 
@@ -131,12 +131,12 @@ def _create_role_filtered_retriever(
 
             stmt = (
                 select(
-                    EmbeddingStore,
+                    embedding_store,
                     distance_fn(query_embedding).label("distance"),
                 )
                 .filter(
-                    EmbeddingStore.collection_id == collection.uuid,
-                    EmbeddingStore.cmetadata.contains(role_filter),
+                    embedding_store.collection_id == collection.uuid,
+                    embedding_store.cmetadata.contains(role_filter),
                 )
                 .order_by(func.asc("distance"))
                 .limit(top_k)
