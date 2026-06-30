@@ -100,7 +100,7 @@ def _create_role_filtered_retriever(
     """
     from sqlalchemy import func, select
 
-    EmbeddingStore = vector_store.EmbeddingStore
+    EmbeddingStore = vector_store.EmbeddingStore  # noqa: N806
     # ``distance_strategy`` is a ``@property`` that returns a bound method
     # such as ``EmbeddingStore.embedding.cosine_distance`` which is then
     # called with the query embedding vector.
