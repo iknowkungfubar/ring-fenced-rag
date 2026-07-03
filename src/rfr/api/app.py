@@ -94,7 +94,9 @@ def create_app() -> FastAPI:
 
     # CSP + security headers on every response (defence in depth)
     @app.middleware("http")
-    async def security_headers_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    async def security_headers_middleware(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         response = await call_next(request)
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
@@ -113,7 +115,9 @@ def create_app() -> FastAPI:
         _rate_logger = _rate_logging.getLogger("rfr.api.rate_limit")
 
         @app.middleware("http")
-        async def rate_limit_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+        async def rate_limit_middleware(
+            request: Request, call_next: Callable[[Request], Awaitable[Response]]
+        ) -> Response:
             # Key by API key (Bearer token) when available, fall back to IP
             auth = request.headers.get("Authorization", "")
             if auth.startswith("Bearer "):
