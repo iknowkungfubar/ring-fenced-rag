@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
-from collections.abc import AsyncGenerator, Callable, Awaitable
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 
