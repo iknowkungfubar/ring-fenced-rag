@@ -181,6 +181,7 @@ docstring-code-line-length = 100
 [tool.pyright]
 strict = ["src/rfr"]
 include = ["src/rfr", "tests"]
+exclude = ["src/rfr/models/migrations"]
 typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 reportUnknownMemberType = false
