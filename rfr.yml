@@ -1,0 +1,67 @@
+data_dir = "/home/turin/.rfr/data"
+standalone = true
+debug = false
+
+[llm]
+provider = "ollama"
+base_url = "http://localhost:11434/v1"
+model = "llama3.2:3b"
+api_key = "not-needed"
+temperature = 0.1
+max_tokens = 1024
+timeout_seconds = 60
+
+[embedding]
+model = "all-MiniLM-L6-v2"
+dimension = 384
+device = "cpu"
+batch_size = 32
+
+[ingestion]
+chunk_size = 512
+chunk_overlap = 50
+default_role = "user"
+cleanup_mode = "incremental"
+max_file_size_mb = 100
+
+[database]
+url = ""
+pool_size = 5
+max_overflow = 10
+echo = false
+
+[redis]
+url = "redis://localhost:6379/0"
+
+[auth]
+enabled = true
+admin_roles = [
+    "admin",
+]
+allowed_roles = [
+    "admin",
+    "senior_engineer",
+    "junior_engineer",
+    "user",
+]
+
+[telemetry]
+enabled = false
+provider = "none"
+endpoint = ""
+trace_retention_days = 7
+
+[server]
+host = "127.0.0.1"
+port = 8000
+log_level = "INFO"
+workers = 1
+cors_origins = [
+    "http://localhost:5173",
+    "http://localhost:8000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8000",
+]
+rate_limit_per_minute = 60
+ssl_certfile = ""
+ssl_keyfile = ""
