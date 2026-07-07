@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from dataclasses import dataclass
 
 from langchain_classic.indexes import SQLRecordManager, index
 from langchain_core.documents import Document
@@ -19,6 +19,16 @@ class IngestionError(Exception):
     """Raised when the ingestion pipeline encounters a fatal error."""
 
 
+@dataclass
+class IngestionResult:
+    """Typed result from the ingestion pipeline."""
+
+    num_added: int = 0
+    num_updated: int = 0
+    num_skipped: int = 0
+    num_deleted: int = 0
+
+
 def ingest_documents(  # noqa: PLR0913
     source: str,
     vector_store: VectorStore,
@@ -28,7 +38,7 @@ def ingest_documents(  # noqa: PLR0913
     chunk_overlap: int = 50,
     default_role: str | None = None,
     cleanup_mode: str = "incremental",
-) -> dict[str, Any]:
+) -> IngestionResult:
     """Execute idempotent document ingestion from a file or directory.
 
     Uses LangChain's SQLRecordManager to track content hashes, ensuring
@@ -46,7 +56,7 @@ def ingest_documents(  # noqa: PLR0913
         cleanup_mode: SQLRecordManager cleanup mode ('incremental', 'full', 'none').
 
     Returns:
-        Dictionary with 'num_added', 'num_updated', 'num_skipped', 'num_deleted'.
+        IngestionResult with num_added, num_updated, num_skipped, num_deleted.
 
     Raises:
         IngestionError: If ingestion fails at any step.
@@ -63,7 +73,7 @@ def ingest_documents(  # noqa: PLR0913
 
         if not raw_documents:
             logger.warning("No documents found at source: %s", source)
-            return {"num_added": 0, "num_updated": 0, "num_skipped": 0, "num_deleted": 0}
+            return IngestionResult()
 
         chunked_docs = chunk_document(raw_documents, chunk_size, chunk_overlap)
 
@@ -88,8 +98,14 @@ def ingest_documents(  # noqa: PLR0913
             source_id_key="source",
         )
 
-        logger.info("Ingestion result: %s", indexing_result)
-        return indexing_result  # type: ignore[return-value]
+        result = IngestionResult(
+            num_added=indexing_result.get("num_added", 0),
+            num_updated=indexing_result.get("num_updated", 0),
+            num_skipped=indexing_result.get("num_skipped", 0),
+            num_deleted=indexing_result.get("num_deleted", 0),
+        )
+        logger.info("Ingestion result: %s", result)
+        return result
 
     except Exception as e:
         logger.exception("Ingestion pipeline failed for source: %s", source)
