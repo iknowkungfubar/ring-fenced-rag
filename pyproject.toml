@@ -31,7 +31,7 @@ dependencies = [
     # transformers is a transitive dep via sentence-transformers — no separate pin needed
     "transformers>=5.0.0rc3",
     "psycopg[binary]>=3.3.4,<4",
-    "pgvector>=0.3,<1",
+    "pgvector>=0.3,<0.4",  # langchain-postgres requires <0.4
     "fastapi>=0.115,<1",
     "uvicorn[standard]>=0.48.0,<1",
     "pydantic>=2.10,<3",
