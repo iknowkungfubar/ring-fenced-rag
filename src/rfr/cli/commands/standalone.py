@@ -1,4 +1,5 @@
 """Standalone and TUI CLI commands."""
+
 from __future__ import annotations
 
 import subprocess
@@ -24,4 +25,5 @@ def standalone(port: int, reload: bool) -> None:
 def tui() -> None:
     """Launch the terminal user interface."""
     from rfr.cli.tui_app import app as tui_app
+
     tui_app.run()

@@ -2,6 +2,7 @@
 
 Commands are defined in commands/*.py and registered here.
 """
+
 from __future__ import annotations
 
 import click

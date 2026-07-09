@@ -2,6 +2,7 @@
 
 Extracted from api/pipeline.py to make execute_rag_query composable.
 """
+
 from __future__ import annotations
 
 import logging
@@ -23,9 +24,9 @@ class MetadataFilter:
         if not self.role:
             return docs
         return [
-            d for d in docs
-            if not d.metadata.get("allowed_roles")
-            or self.role in d.metadata["allowed_roles"]
+            d
+            for d in docs
+            if not d.metadata.get("allowed_roles") or self.role in d.metadata["allowed_roles"]
         ]
 
 

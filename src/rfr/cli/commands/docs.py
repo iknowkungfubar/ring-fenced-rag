@@ -1,4 +1,5 @@
 """Docs CLI commands (list/delete documents)."""
+
 from __future__ import annotations
 
 import click

@@ -2,6 +2,7 @@
 
 Extracted from cli/__init__.py for modularity.
 """
+
 from __future__ import annotations
 
 import click

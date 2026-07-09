@@ -1,4 +1,5 @@
 """Ingest CLI command."""
+
 from __future__ import annotations
 
 import click

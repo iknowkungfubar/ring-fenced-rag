@@ -2,6 +2,7 @@
 
 Extracted from cli/__init__.py for modularity.
 """
+
 from __future__ import annotations
 
 import os
@@ -101,7 +102,8 @@ def _show_docker_status() -> None:
     """Display Docker container status."""
     result = subprocess.run(
         ["docker", "compose", "ps", "--format", "table"],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     console.print(result.stdout)
 
