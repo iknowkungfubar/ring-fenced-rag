@@ -1,6 +1,6 @@
 """Authentication module — API key hashing, verification, and role extraction.
 
-Uses BLAKE2b (via hashlib) for key hashing and constant-time HMAC comparison.
+Uses PBKDF2-HMAC-SHA256 (via hashlib) for key hashing and constant-time HMAC comparison.
 Keys are formatted as: rfr_<32-hex-chars>
 """
 

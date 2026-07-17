@@ -8,13 +8,12 @@ from __future__ import annotations
 import click
 
 from rfr import __version__
-
-from rfr.cli.commands.docker import init, up, down, status, logs
 from rfr.cli.commands.config import config_group
-from rfr.cli.commands.ingest import ingest
-from rfr.cli.commands.query import query
-from rfr.cli.commands.keys import keys
+from rfr.cli.commands.docker import down, init, logs, status, up
 from rfr.cli.commands.docs import docs
+from rfr.cli.commands.ingest import ingest
+from rfr.cli.commands.keys import keys
+from rfr.cli.commands.query import query
 from rfr.cli.commands.standalone import standalone, tui
 
 

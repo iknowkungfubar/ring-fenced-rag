@@ -19,7 +19,7 @@ def ingest(path: str, role: str | None, pattern: str) -> None:
     client = RfrClient()
     result = client.ingest_directory(
         path,
-        default_role=role if role else "user",
+        default_role=role or "user",
         glob_pattern=pattern,
     )
     console.print(f"Started ingestion from [green]{path}[/] (task: {result.task_id})")

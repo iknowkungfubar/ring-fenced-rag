@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class MetadataFilter:
     """Role-based metadata filtering for document retrieval."""
 
-    def __init__(self, role: str | None = None):
+    def __init__(self, role: str | None = None) -> None:
         self.role = role
 
     def filter_docs(self, docs: list[Document]) -> list[Document]:
@@ -33,7 +33,7 @@ class MetadataFilter:
 class ContextFormatter:
     """Context deduplication, token counting, and truncation."""
 
-    def __init__(self, max_tokens: int = 4096):
+    def __init__(self, max_tokens: int = 4096) -> None:
         self.max_tokens = max_tokens
 
     def deduplicate(self, docs: list[Document]) -> list[Document]:
