@@ -13,29 +13,41 @@ class _MockClient:
     """Mock API client."""
 
     def health(self):
-        return type("obj", (), {
-            "status": "ok",
-            "version": "1.0.0",
-            "components": {"database": "connected"},
-            "uptime_seconds": 0.0,
-        })()
+        return type(
+            "obj",
+            (),
+            {
+                "status": "ok",
+                "version": "1.0.0",
+                "components": {"database": "connected"},
+                "uptime_seconds": 0.0,
+            },
+        )()
 
     def query(self, question: str, top_k: int = 3):
-        return type("obj", (), {
-            "answer": "Test answer",
-            "sources": [],
-            "token_usage": type("obj", (), {"total_tokens": 0})(),
-            "latency_ms": 0.0,
-        })()
+        return type(
+            "obj",
+            (),
+            {
+                "answer": "Test answer",
+                "sources": [],
+                "token_usage": type("obj", (), {"total_tokens": 0})(),
+                "latency_ms": 0.0,
+            },
+        )()
 
     def ingest_directory(self, path: str, default_role: str = "user", glob_pattern: str = "**/*"):
         return type("obj", (), {"task_id": "task-1", "status": "completed", "source": path})()
 
     def get_ingestion_status(self, task_id: str):
-        return type("obj", (), {
-            "status": "completed",
-            "result": {"num_added": 3},
-        })()
+        return type(
+            "obj",
+            (),
+            {
+                "status": "completed",
+                "result": {"num_added": 3},
+            },
+        )()
 
 
 class TestCliEdgeCases:
@@ -98,7 +110,7 @@ class TestCliEdgeCases:
 
     def test_tui_command_no_textual(self) -> None:
         """tui command should error gracefully without Textual."""
-        with patch("rfr.cli.commands.standalone.RFRTuiApp", side_effect=ImportError("No Textual")):
+        with patch("rfr.cli.tui_app.app", side_effect=ImportError("No Textual")):
             result = self.runner.invoke(cli, ["tui"])
             # Should show install message
             assert result.exit_code != 0 or "TUI" in result.output

@@ -24,4 +24,5 @@ def query(question: tuple[str, ...], role: str | None, top_k: int, no_llm: bool)
     if response.sources:
         console.print("\n[bold]Sources:[/]")
         for src in response.sources:
-            console.print(f"  - {src.title} ({src.score:.2f})")
+            title = src.metadata.get("title", "Unknown") if src.metadata else "Unknown"
+            console.print(f"  - {title} ({src.relevance_score:.2f})")
