@@ -110,7 +110,6 @@ class TestCliEdgeCases:
 
     def test_tui_command_no_textual(self) -> None:
         """tui command should error gracefully without Textual."""
-        with patch("rfr.cli.tui_app.app", side_effect=ImportError("No Textual")):
-            result = self.runner.invoke(cli, ["tui"])
-            # Should show install message
-            assert result.exit_code != 0 or "TUI" in result.output
+        result = self.runner.invoke(cli, ["tui"])
+        # Without Textual, the command should exit with error
+        assert result.exit_code != 0
