@@ -113,10 +113,12 @@ class TestCli:
 
     def _invoke_with_mock(self, args: list[str]) -> Result:
         """Invoke CLI with RfrClient mocked at usage sites."""
-        with patch("rfr.cli.commands.query.RfrClient", return_value=_MockClient()):
-            with patch("rfr.cli.commands.ingest.RfrClient", return_value=_MockClient()):
-                with patch("rfr.cli.commands.keys.RfrClient", return_value=_MockClient()):
-                    return self.runner.invoke(cli, args)
+        with (
+            patch("rfr.cli.commands.query.RfrClient", return_value=_MockClient()),
+            patch("rfr.cli.commands.ingest.RfrClient", return_value=_MockClient()),
+            patch("rfr.cli.commands.keys.RfrClient", return_value=_MockClient()),
+        ):
+            return self.runner.invoke(cli, args)
 
     def test_version(self) -> None:
         """--version should print the package version."""
