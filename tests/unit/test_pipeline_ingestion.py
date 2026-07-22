@@ -38,7 +38,7 @@ class TestIngestDocuments:
             vector_store=MagicMock(),
             db_url="sqlite://",
         )
-        assert result["num_added"] == 1
+        assert result.num_added == 1
         mock_parse.assert_called_once()
         mock_chunk.assert_called_once()
 
@@ -69,7 +69,7 @@ class TestIngestDocuments:
                 vector_store=MagicMock(),
                 db_url="sqlite://",
             )
-        assert result["num_added"] == 1
+        assert result.num_added == 1
 
     @patch("rfr.ingestion.pipeline.parse_document")
     def test_ingest_error_raises(self, mock_parse: MagicMock) -> None:
@@ -102,7 +102,7 @@ class TestIngestDocuments:
             vector_store=MagicMock(),
             db_url="sqlite://",
         )
-        assert result["num_added"] == 0
+        assert result.num_added == 0
         mock_chunk.assert_not_called()
 
 
