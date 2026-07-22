@@ -17,7 +17,12 @@ class TestAppFactory:
     def test_app_has_routes(self) -> None:
         """The app should have registered routes."""
         app = create_app()
-        routes = [getattr(r, 'path', None) for r in app.routes if hasattr(r, 'path')]
+        routes = []
+        for r in app.routes:
+            if hasattr(r, "path"):
+                routes.append(r.path)
+            elif hasattr(r, "original_router"):
+                routes.extend(rr.path for rr in r.original_router.routes)
         assert "/api/v1/health" in routes
         assert "/api/v1/query" in routes
         assert "/api/v1/ingest" in routes
