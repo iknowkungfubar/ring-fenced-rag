@@ -158,8 +158,13 @@ class TestCliExtended:
     def setup_method(self) -> None:
         self.runner = CliRunner()
 
-    def _invoke(self, args: list[str]) -> Result:  # type: ignore[name-defined]
-        with patch("rfr.cli.client.RfrClient", return_value=_RichMockClient()):
+    def _invoke(self, args: list[str]):
+        with (
+            patch("rfr.cli.commands.query.RfrClient", return_value=_RichMockClient()),
+            patch("rfr.cli.commands.ingest.RfrClient", return_value=_RichMockClient()),
+            patch("rfr.cli.commands.keys.RfrClient", return_value=_RichMockClient()),
+            patch("rfr.cli.commands.docs.RfrClient", return_value=_RichMockClient()),
+        ):
             return self.runner.invoke(cli, args)
 
     def test_docs_list(self) -> None:
