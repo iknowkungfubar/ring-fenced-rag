@@ -12,7 +12,7 @@ class HealthResponse(BaseModel):
     """Health check response."""
 
     status: str = "ok"
-    version: str = "1.0.0a1"
+    version: str = "1.0.0"
     components: dict[str, str] = Field(
         default_factory=lambda: {
             "database": "not_connected",

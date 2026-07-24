@@ -30,7 +30,7 @@ class _MockClient:
     def health(self) -> HealthResponse:
         return HealthResponse(
             status="ok",
-            version="1.0.0a1",
+            version="1.0.0",
             components={"database": "connected", "redis": "connected", "llm": "configured"},
             uptime_seconds=3600.0,
         )

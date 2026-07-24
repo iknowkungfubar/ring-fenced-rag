@@ -15,7 +15,7 @@ __title__ = "ring-fenced-rag"
 __author__ = "Turin"
 
 # Static fallback version (updated manually for each release)
-_STATIC_VERSION = "1.0.0a1"
+_STATIC_VERSION = "1.0.0"
 
 
 def _get_git_version() -> str | None:

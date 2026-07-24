@@ -5,11 +5,10 @@
 [![CI](https://github.com/iknowkungfubar/ring-fenced-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/iknowkungfubar/ring-fenced-rag/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/iknowkungfubar/ring-fenced-rag/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/iknowkungfubar/ring-fenced-rag/security/code-scanning)
 [![Dependabot](https://img.shields.io/badge/dependabot-active-brightgreen.svg)](https://github.com/iknowkungfubar/ring-fenced-rag/security/dependabot)
-[![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/ring-fenced-rag)](https://pypi.org/project/ring-fenced-rag/)
 
-> **⚠️ Alpha Release** — This is v1.0.0a1. The API and CLI are stable under active development. Breaking changes are possible before v1.0.0.
 
 ## What is Ring-Fenced RAG?
 

@@ -1,21 +1,23 @@
 [project]
 name = "ring-fenced-rag"
-version = "1.0.0a1"
+version = "1.0.0"
 description = "Self-hosted, zero-trust RAG with role-based access control enforced at the database level"
 readme = "README.md"
 authors = [
     { name = "Turin", email = "turin.ortherion@gmail.com" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 keywords = ["rag", "rag-system", "rfr", "secure-rag", "retrieval-augmented-generation", "ai", "llm"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Security",
@@ -99,7 +101,7 @@ packages = ["src/rfr"]
 allow-direct-references = true
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]

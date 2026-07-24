@@ -5,6 +5,14 @@ All notable changes to Ring-Fenced RAG will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] — 2026-07-24
+
+### Changed
+- Promoted from alpha (v1.0.0a1) to stable (v1.0.0)
+- Dropped Python requirement to >=3.11 (was >=3.13) — unlocks pip install on all modern runtimes
+- Updated Python classifiers for 3.11, 3.12, 3.13
+- Updated ruff target-version to py311
+
 ## [1.0.0a1] — 2025-05-31
 
 ### Added
