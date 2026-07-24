@@ -77,3 +77,4 @@ ai-context.md
 SKILL.md
 *.hermes-profile
 rfr.yml
+.venv-test/
