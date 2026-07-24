@@ -1,38 +1,20 @@
-name: Release
+name: Publish to PyPI
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
-
-permissions:
-  contents: write
-  id-token: write
+  release:
+    types: [published]
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          fetch-depth: 0
-
-      - uses: astral-sh/setup-uv@v7
-        with:
-          version: "0.11"
           python-version: "3.13"
-
-      - name: Build package
-        run: uv build
-
-      - name: Publish to PyPI
-        env:
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: uv publish
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body_path: CHANGELOG.md
-          files: dist/*
-          generate_release_notes: true
+      - run: pip install build twine
+      - run: python -m build
+      - run: twine upload dist/*
