@@ -310,10 +310,12 @@ def create_rag_chain(
         [
             (
                 "system",
-                "You are an internal documentation assistant. Answer the user's question "
-                "using ONLY the provided context. If the context does not contain the answer, "
-                "explicitly state 'I do not know'. Do not guess or use outside knowledge.\n\n"
-                "Context:\n{context}",
+                (
+                    "You are an internal documentation assistant. Answer the user's question "
+                    "using ONLY the provided context. If the context does not contain the answer, "
+                    "explicitly state 'I do not know'. Do not guess or use outside knowledge.\n\n"
+                    "Context:\n{context}"
+                ),
             ),
             ("human", "{question}"),
         ]

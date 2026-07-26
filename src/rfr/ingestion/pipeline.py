@@ -29,7 +29,7 @@ class IngestionResult:
     num_deleted: int = 0
 
 
-def ingest_documents(  # noqa: PLR0913
+def ingest_documents(  # noqa: PLR0913, PLR0917
     source: str,
     vector_store: VectorStore,
     db_url: str,

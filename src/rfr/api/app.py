@@ -174,7 +174,7 @@ def create_app() -> FastAPI:
         import logging
 
         logger = logging.getLogger(__name__)
-        logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
+        logger.error("Unhandled exception on %s %s", request.method, request.url.path)
 
         return JSONResponse(
             status_code=500,
