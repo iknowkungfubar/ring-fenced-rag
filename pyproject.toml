@@ -152,6 +152,7 @@ ignore = [
     "TRY301",  # raise within try — pre-existing
     "E501",    # Line too long — pre-existing
     "C901",    # Function too complex — pre-existing
+    "CPY001",  # Missing copyright notice — no headers in repo; pre-existing
     "PLR0915", # Too many statements — pre-existing
 ]
 fixable = ["ALL"]
