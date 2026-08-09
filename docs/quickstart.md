@@ -4,7 +4,7 @@ Get up and running in under 5 minutes.
 
 ## Prerequisites
 
-- Python 3.13+
+- Python 3.11+
 - Docker & Docker Compose (for production mode)
 
 ## Install

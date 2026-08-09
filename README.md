@@ -36,7 +36,7 @@ rfr query "How do I restart Nginx?"
 ## Quick Start
 
 ### Prerequisites
-- Python 3.13+
+- Python 3.11+
 - Docker & Docker Compose (for production mode)
 - Or: just Python (for standalone mode with SQLite)
 
@@ -63,7 +63,7 @@ This creates:
 # Production mode (Docker — recommended)
 rfr up
 
-# Standalone mode (no Docker)  
+# Standalone mode (no Docker)
 rfr standalone
 ```
 
