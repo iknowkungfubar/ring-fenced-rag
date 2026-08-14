@@ -14,6 +14,10 @@ updates:
       development:
         dependency-type: "development"
         patterns: ["*"]
+    ignore:
+      # langchain-postgres requires pgvector<0.4; dependabot can't bump past it
+      - dependency-name: "pgvector"
+        update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
